@@ -1,0 +1,7 @@
+{
+  "iris" : {
+    "uri": "RABBIT_URI",
+    "exchange": "RABBIT_EXCHANGE",
+    "namespace": "IRIS_NAMESPACE"
+  }
+}

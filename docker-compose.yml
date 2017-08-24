@@ -1,0 +1,19 @@
+version: '2'
+services:
+  metis:
+    command: /bin/sh -c "npm i && npm run make && npm run startDev"
+    image: node:8
+    working_dir: /opt
+    volumes:
+      - .:/opt
+    environment:
+      TERM: dumb
+    networks:
+      - service
+      - rabbit
+
+networks:
+  service:
+  rabbit:
+    external:
+      name: rabbit

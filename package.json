@@ -1,0 +1,58 @@
+{
+  "name": "metis",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "precommit": "npm run lint",
+    "start": "node .",
+    "startDev": "nodemon --watch src/main --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && node .'",
+    "make": "rm -fr dist && tsc",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "test": "nyc --reporter lcov tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec",
+    "coverage": "nyc check-coverage --lines 80 --functions 80 --branches 80"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.spec.js",
+      "**/*.d.ts"
+    ]
+  },
+  "author": "Repositive Team",
+  "license": "MIT",
+  "keywords": [
+    "metis",
+    "service"
+  ],
+  "dependencies": {
+    "@repositive/iris": "^0.5.0",
+    "config": "^1.26.2",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  },
+  "devDependencies": {
+    "@repositive/typescript": "^1.1.2",
+    "@types/config": "0.0.32",
+    "@types/node": "^8.0.24",
+    "@types/proxyquire": "^1.3.28",
+    "@types/sinon": "^2.3.3",
+    "@types/tape": "^4.2.30",
+    "husky": "^0.14.3",
+    "nodemon": "^1.11.0",
+    "nyc": "^11.1.0",
+    "proxyquire": "^1.8.0",
+    "sinon": "^3.2.1",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.8.0",
+    "tslint": "^5.6.0",
+    "typescript": "^2.4.2"
+  }
+}
