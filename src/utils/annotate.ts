@@ -44,7 +44,7 @@ export default async function annotate(field: string, term: string) {
     .then((res: any) => {
       return res;
     })
-    .catch(err => {
+    .catch((err: any) => {
       console.error(err);
       // API call failed...
       console.log('_request error');
