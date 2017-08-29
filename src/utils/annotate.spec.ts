@@ -2,7 +2,7 @@ import * as test from 'tape';
 import { Test } from 'tape';
 import { stub } from 'sinon';
 import * as proxyquire from 'proxyquire';
-//import * as _request from 'request-promise';
+
 //-------------------------------
 
 test('Testing Zooma annotate service', (t: Test) => {
@@ -88,17 +88,19 @@ test('Testing Zooma annotate service', (t: Test) => {
       'annotatedBiologicalEntities': []
     };
 
-    const mockedReq = stub().returns(Promise.resolve({ hello: 'world' }));
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
 
-    const _annotate = proxyquire('./annotate', {
-      _request: mockedReq
-    });
+    const _annotate = proxyquire
+      //.noCallThru()
+      .load('./annotate', {
+        'request-promise': mockedReq
+      });
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
     const result = await _annotate.default(field, term)
       .then(function(data: any) {
-        console.log('got data', data);
+        //console.log('got data', data);
         return data;
       }).catch(err => {
         console.error(err);
@@ -121,9 +123,9 @@ test('Testing Zooma annotate service', (t: Test) => {
     const term = 'viiat';
 
     const annotateResult = { originalTerm: 'viiat' };
-    const requestResponse = {};
+    const requestResponse = undefined;
 
-    const mockedReq = stub().returns(Promise.resolve(requestResponse));
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
     const _annotate = proxyquire('./annotate', {
       'request-promise': mockedReq
     });
@@ -154,7 +156,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = { originalTerm: undefined };
     const requestResponse = {};
 
-    const mockedReq = stub().returns(Promise.resolve(requestResponse));
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
     const _annotate = proxyquire('./annotate', {
       'request-promise': mockedReq
     });
@@ -187,7 +189,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = { originalTerm: 'none' };
     const requestResponse = {};
 
-    const mockedReq = stub().returns(Promise.resolve(requestResponse));
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
     const _annotate = proxyquire('./annotate', {
       'request-promise': mockedReq
     });
