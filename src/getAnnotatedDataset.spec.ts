@@ -51,7 +51,7 @@ test('Testing UpdateDataset wrapper', async(t: Test) => {
   await _getAnnotatedDataset.updateDataset(testDatasetFinal).then(function(data: any) {
     //console.log('got data', data);
     return data;
-  }).catch(err => {
+  }).catch((err: any) => {
     console.error(err);
     console.log('annotate error');
     // API call failed...

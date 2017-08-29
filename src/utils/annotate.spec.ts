@@ -21,10 +21,10 @@ test('Testing Zooma annotate service', (t: Test) => {
     };
 
     const requestResponse = {
-      'uri': null,
+      'uri': undefined,
       'annotatedProperty': {
-        'uri': null,
-        'propertyType': null,
+        'uri': undefined,
+        'propertyType': undefined,
         'propertyValue': 'random exon sequencing'
       },
       '_links': {
@@ -41,8 +41,8 @@ test('Testing Zooma annotate service', (t: Test) => {
       'derivedFrom': {
         'uri': 'http://rdf.ebi.ac.uk/resource/zooma/annotation_summary/OLS',
         'annotatedProperty': {
-          'uri': null,
-          'propertyType': null,
+          'uri': undefined,
+          'propertyType': undefined,
           'propertyValue': 'random exon sequencing'
         },
         '_links': {
@@ -63,11 +63,11 @@ test('Testing Zooma annotate service', (t: Test) => {
             'uri': 'http://www.ebi.ac.uk/efo/efo.owl'
           },
           'evidence': 'COMPUTED_FROM_ONTOLOGY',
-          'accuracy': null,
+          'accuracy': undefined,
           'generator': 'http://www.ebi.ac.uk/efo/efo.owl',
-          'generatedDate': null,
-          'annotator': null,
-          'annotationDate': null
+          'generatedDate': undefined,
+          'annotator': undefined,
+          'annotationDate': undefined
         },
         'annotatedBiologicalEntities': []
       },
@@ -79,7 +79,7 @@ test('Testing Zooma annotate service', (t: Test) => {
           'uri': 'http://www.ebi.ac.uk/spot/zooma'
         },
         'evidence': 'COMPUTED_FROM_TEXT_MATCH',
-        'accuracy': null,
+        'accuracy': undefined,
         'generator': 'ZOOMA',
         'generatedDate': 1503678044975,
         'annotator': 'ZOOMA',
@@ -100,12 +100,13 @@ test('Testing Zooma annotate service', (t: Test) => {
       .then(function(data: any) {
         console.log('got data', data);
         return data;
-      }).catch(err => {
+      }).catch((err: any) => {
         console.error(err);
         console.log('annotate error');
         // API call failed...
       });
-
+    console.log('here!');
+    console.log(_annotate.default.toString());
     st.assert(mockedReq.called, 'It calls request');
     st.equal(mockedReq.callCount, 1, 'It calls request once');
     st.assert(result instanceof Object, 'Returns an object');
@@ -133,7 +134,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const result = await _annotate.default(field, term).then(function(data: any) {
       //console.log('got data', data);
       return data;
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error(err);
       console.log('annotate error');
       // API call failed...
@@ -164,7 +165,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const result = await _annotate.default(field, term).then(function(data: any) {
       //console.log('got data', data);
       return data;
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error(err);
       console.log('annotate error');
       // API call failed...
@@ -197,7 +198,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const result = await _annotate.default(field, term).then(function(data: any) {
       //console.log('got data', data);
       return data;
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error(err);
       console.log('annotate error');
       // API call failed...

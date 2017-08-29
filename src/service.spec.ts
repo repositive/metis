@@ -6,7 +6,7 @@ import init from './service';
 test('Testing basic service', (t: Test) => {
   async function _test() {
 
-    const _pack = { version: '1' };
+    const _pack = { version: '1', name: 'metis' };
     const _iris = { request: stub() as any, register: stub().returns(Promise.resolve()) as any };
     const _irisSetup = stub().returns(Promise.resolve(_iris));
     const irisConfig = { url: 'a', exchange: 'b', namespace: 'c' };
