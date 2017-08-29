@@ -9,9 +9,11 @@
 
 import * as _request from 'request-promise';
 
+//-----------------------
+
 export default async function annotate(field: string, term: string) {
 
-  let result = { originalTerm: term };
+  let result: any = { originalTerm: term };
 
   const ontologyDict = {
     'assay': 'efo,edam',
@@ -49,14 +51,13 @@ export default async function annotate(field: string, term: string) {
     });
 
   json = json[0];
-  //console.log(json);
+  //console.log(JSON.stringify(json, undefined, 2));
   // if there is no match, returns undefined
   // if there are multiple matches, returns only the first one.. check this is appropriate.
 
   if (json) {
 
     const uriSplit = json._links.olslinks[0].semanticTag.split('/');
-    //let ontologyShortName = uriSplit.slice(-1)[0].split('.')[0];
     const ontologyShortName = uriSplit.slice(-2)[0];
 
     result = {
@@ -78,3 +79,5 @@ export default async function annotate(field: string, term: string) {
 }
 
 //----------------------------------------
+
+//annotate('tissue', 'heart');

@@ -35,6 +35,7 @@
   "dependencies": {
     "@repositive/iris": "^0.5.0",
     "config": "^1.26.2",
+    "node-fetch": "^1.7.2",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
   },

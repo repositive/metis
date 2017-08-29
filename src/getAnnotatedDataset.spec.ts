@@ -2,61 +2,68 @@ import * as test from 'tape';
 import { Test } from 'tape';
 import { stub } from 'sinon';
 import * as proxyquire from 'proxyquire';
-import { updateDataset } from './getAnnotatedDataset';
-import * as _request from 'request-promise';
-
-//-------------------------------
-
-const testDataset = {
-  'id': '007d4b51-3bb9-467e-9569-318d19112cc5',
-  'description': 'An Integrated Genomic Approach to Alzheimer Disease, Alzheimer\'s Disease and Gene Discovery on Chromosome 9 SNP and microsatellite genotypes.',
-  'external_id': 'NG00014',
-  'datasource_id': 'e36f2d0b-6b04-44cf-9258-9bd7e7d45739',
-  'access': 'Restricted',
-  'created_at': '2017-07-14 14:11:32.498+00',
-  'url': 'https:\/\/www.niagads.org\/datasets\/NG00014',
-  'title': 'Alzheimer\'s Disease and Gene Discovery on Chromosome 9',
-  'assay': 'Targeted Genotyping',
-  'updated_at': '2017-07-14 14:11:32.498+00',
-  'tech': 'Not Specified',
-  'properties': {
-    'raw_id': 'NIAGADS-56e49e17c2427ff5405ecc45d3a5c16d',
-    'attributes': {
-      'pmid': ['15455263', '12677449', '14564669', '14570706', '15234467', '15987928', '16199552', '16093727', '16198584', '16222332', '15985314'],
-      'assay': ['Targeted Genotyping', 'WXS'],
-      'technology': ['none'],
-      'disease': ['Alzheimer\'s disease ', 'viiat'],
-      'samples': [6135]
-    }
-  }
-};
 
 //-----------------------------------
 
-test('Testing UpdateDataset', (t: Test) => {
+test('Testing UpdateDataset wrapper', async(t: Test) => {
 
-  async function _test() {
+  const testDatasetOriginal = {
+    'id': 'test',
+    'properties': {
+      'attributes': {
+        'assay': ['test1', 'test2'],
+        'technology': ['test3'],
+        'disease': ['test4', 'test5']
+      }
+    }
+  };
 
-    const annotateResult = { originalTerm: 'WXS' };
-    const _annotate = stub().returns(Promise.resolve(annotateResult));
-    const _updateDataset = stub().returns(Promise.resolve());
+  // because the function modifies the dataset inplace
+  const testDatasetFinal = {
+    'id': 'test',
+    'properties': {
+      'attributes': {
+        'assay': ['test1', 'test2'],
+        'technology': ['test3'],
+        'disease': ['test4', 'test5']
+      }
+    }
+  };
 
-    const _getAnnotatedDataset = proxyquire('./getAnnotatedDataset', {
-      './utils/annotate': _annotate,
-      updateDataset
-    });
+  const annotateResult = {
+    'originalTerm': 'test ',
+    'ontologyTerm': 'Test',
+    'ontologyIRI': 'http://testurl.com',
+    'ontologyConfidence': 'HIGH',
+    'ontologySource': 'http://test',
+    'ontologyShortName': 'test'
+  };
 
-    const result = await _getAnnotatedDataset.updateDataset({ request: _request, payload: { dataset: testDataset } });
+  //console.log(JSON.stringify(testDatasetFinal, undefined, 2));
 
-    console.log(JSON.stringify(result, undefined, 2));
+  const mockedAnnotate = stub().returns(Promise.resolve(annotateResult));
+  const _getAnnotatedDataset = proxyquire('./getAnnotatedDataset', {
+    './utils/annotate': { default: mockedAnnotate }
+  });
 
-    t.ok(_getAnnotatedDataset.updateDataset.called, 'It calls updateDataset');
-    t.assert(result instanceof Object, 'Returns an object');
-    //t.notDeepEquals(result, annotateResult, 'The final result is equal to the expected result');
-  }
+  t.equals(typeof _getAnnotatedDataset.updateDataset, 'function', 'The module exports a function called updateDataset');
 
-  _test()
-    .then(() => t.end())
-    .catch(console.error);
+  await _getAnnotatedDataset.updateDataset(testDatasetFinal).then(function(data: any) {
+    //console.log('got data', data);
+    return data;
+  }).catch(err => {
+    console.error(err);
+    console.log('annotate error');
+    // API call failed...
+  });
 
+  //console.log(JSON.stringify(result, undefined, 2));
+  //console.log(JSON.stringify(testDatasetFinal, undefined, 2));
+
+  t.ok(mockedAnnotate.called, 'It calls updateDataset');
+  t.equal(mockedAnnotate.callCount, 5, 'Call count = 5');
+
+  t.assert(testDatasetFinal instanceof Object, 'Returns an object');
+  t.notDeepEqual(testDatasetFinal, testDatasetOriginal, 'The final result is not equal to the initial dataset');
+  t.end();
 });

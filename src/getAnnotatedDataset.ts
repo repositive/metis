@@ -1,11 +1,10 @@
-import * as _request from 'request-promise';
 import annotate from './utils/annotate';
 
-export async function updateDataset({ request = _request, payload }: { request: any, payload: { dataset: any } }) {
+//------------------------
 
-  const dataset = payload.dataset;
+export async function updateDataset(dataset: any) {
 
-  const keysToAnnotate = ['assay', 'technology', 'tissue', 'disease'];
+  const keysToAnnotate: any[] = ['assay', 'technology', 'tissue', 'disease'];
 
   for (const key in dataset.properties.attributes) { // depends on data model
     if (keysToAnnotate.includes(key)) {
@@ -27,16 +26,12 @@ export async function updateDataset({ request = _request, payload }: { request: 
       }
     }
   }
-  console.log(JSON.stringify(dataset, undefined, 2));
+  //console.log(JSON.stringify(dataset, undefined, 2));
   return dataset;
 }
 
 //-------------------------------
-//import * as testDataset from './utils/testdataset.json';
-
-//const testDataset = require('./utils/testdataset.json');
-
-const testDataset = {
+/*const testDataset = {
   'id': '007d4b51-3bb9-467e-9569-318d19112cc5',
   'description': 'An Integrated Genomic Approach to Alzheimer Disease, Alzheimer\'s Disease and Gene Discovery on Chromosome 9 SNP and microsatellite genotypes.',
   'external_id': 'NG00014',
@@ -58,6 +53,6 @@ const testDataset = {
       'samples': [6135]
     }
   }
-};
+};*/
 
-updateDataset({ request: _request, payload: { dataset: testDataset } });
+//updateDataset(testDataset);
