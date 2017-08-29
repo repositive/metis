@@ -48,15 +48,14 @@ test('Testing UpdateDataset wrapper', async(t: Test) => {
 
   t.equals(typeof _getAnnotatedDataset.updateDataset, 'function', 'The module exports a function called updateDataset');
 
-  await _getAnnotatedDataset.updateDataset(testDatasetFinal)
-    .then(function(data: any) {
-      //console.log('got data', data);
-      return data;
-    }).catch(err => {
-      console.error(err);
-      console.log('annotate error');
-      // API call failed...
-    });
+  await _getAnnotatedDataset.updateDataset(testDatasetFinal).then(function(data: any) {
+    //console.log('got data', data);
+    return data;
+  }).catch((err: any) => {
+    console.error(err);
+    console.log('annotate error');
+    // API call failed...
+  });
 
   //console.log(JSON.stringify(result, undefined, 2));
   //console.log(JSON.stringify(testDatasetFinal, undefined, 2));

@@ -7,7 +7,7 @@ export async function updateDataset(dataset: any) {
   const keysToAnnotate: any[] = ['assay', 'technology', 'tissue', 'disease'];
 
   for (const key in dataset.properties.attributes) { // depends on data model
-    if (keysToAnnotate.includes(key)) {
+    if (keysToAnnotate.indexOf(key) > -1) {
       const array = dataset.properties.attributes[key];
 
       for (let index = 0; index < array.length; index++) { // can't do await in forEach loop
