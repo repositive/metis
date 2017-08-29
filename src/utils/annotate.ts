@@ -7,11 +7,11 @@
 // At end, need to update record in db.
 //----------------------------------------
 
-import * as _request from 'request-promise';
+import * as request from 'request-promise';
 
 //-----------------------
 
-export default async function annotate(field: string, term: string) {
+export default async function annotate(field: string, term: string | undefined, _request: any = request) {
 
   let result: any = { originalTerm: term };
 
