@@ -26,7 +26,7 @@ export default async function annotate(field: string, term: string) {
 
   const excludedTerms = ['n/a', 'na', 'none', 'not available', 'other', 'unavailable', 'unknown', 'unspecified'];
 
-  if (!term || excludedTerms.includes(term.toLowerCase())) {
+  if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
     return result;
   }
 
