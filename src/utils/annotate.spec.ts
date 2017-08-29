@@ -3,6 +3,8 @@ import { Test } from 'tape';
 import { stub } from 'sinon';
 import annotate from './annotate';
 
+//-------------------------------
+
 test('Testing Zooma annotate service', (t: Test) => {
   t.test('The term is successfully matched', async function(st: Test) {
 
@@ -86,13 +88,13 @@ test('Testing Zooma annotate service', (t: Test) => {
       'annotatedBiologicalEntities': []
     };
 
-    const mockedReq = stub().returns(Promise.resolve({ hello: 'world' }));
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
 
     st.equals(typeof annotate, 'function', 'The module exports a function called annotate');
 
     const result = await annotate(field, term, mockedReq)
       .then(function(data: any) {
-        console.log('got data', data);
+        //console.log('got data', data);
         return data;
       }).catch((err: any) => {
         console.error(err);
@@ -114,7 +116,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const term = 'viiat';
 
     const annotateResult = { originalTerm: 'viiat' };
-    const requestResponse = {};
+    const requestResponse = undefined;
 
     const mockedReq = stub().returns(Promise.resolve(requestResponse));
 
