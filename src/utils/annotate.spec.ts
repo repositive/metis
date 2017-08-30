@@ -6,7 +6,7 @@ import * as fs from 'fs';
 
 //-------------------------------
 
-test.only('Testing Zooma annotate service', (t: Test) => {
+test('Testing Zooma annotate service', (t: Test) => {
   t.test('The term is successfully matched', async function(st: Test) {
 
     const field = 'assay';
@@ -25,11 +25,9 @@ test.only('Testing Zooma annotate service', (t: Test) => {
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
 
-    const _annotate = proxyquire
-      //.noCallThru()
-      .load('./annotate', {
-        'request-promise': mockedReq
-      });
+    const _annotate = proxyquire('./annotate', {
+      'request-promise': mockedReq
+    });
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
@@ -112,9 +110,6 @@ test.only('Testing Zooma annotate service', (t: Test) => {
     st.assert(result instanceof Object, 'Returns an object');
     st.assert(!('ontologyTerm' in result), 'Result doesn\'t have ontologyTerm');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
-
-    // not sure how to do this?
-    st.doesNotThrow(result, /error/, 'Does not throw an error');
     st.end();
   });
 
@@ -142,13 +137,10 @@ test.only('Testing Zooma annotate service', (t: Test) => {
         // API call failed...
       });
 
-    st.ok(mockedReq.notCalled, 'It doens\'t call request');
+    st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
     st.assert(result instanceof Object, 'Returns an object');
     st.assert(!('ontologyTerm' in result), 'Result doesn\'t have ontologyTerm');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
-
-    // not sure how to do this?
-    st.doesNotThrow(result, /error/, 'Does not throw an error');
     st.end();
   });
 
