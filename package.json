@@ -11,6 +11,7 @@
     "precommit": "npm run lint",
     "start": "node .",
     "startDev": "nodemon --watch src/main --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && node .'",
+    "testDev": "nodemon --watch src/ --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec'",
     "make": "rm -fr dist && tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "test": "nyc --reporter lcov tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec",
@@ -35,6 +36,8 @@
   "dependencies": {
     "@repositive/iris": "^0.5.0",
     "config": "^1.26.2",
+    "node-fetch": "^1.7.2",
+    "ramda": "^0.24.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
   },
@@ -43,6 +46,8 @@
     "@types/config": "0.0.32",
     "@types/node": "^8.0.24",
     "@types/proxyquire": "^1.3.28",
+    "@types/ramda": "^0.24.8",
+    "@types/request-promise": "^4.1.37",
     "@types/sinon": "^2.3.3",
     "@types/tape": "^4.2.30",
     "husky": "^0.14.3",

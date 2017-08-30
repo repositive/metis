@@ -6,15 +6,15 @@ import init from './service';
 test('Testing basic service', (t: Test) => {
   async function _test() {
 
-    const _pack = {version: '1'};
-    const _iris = {request: stub() as any, register: stub().returns(Promise.resolve()) as any};
+    const _pack = { version: '1', name: 'metis' };
+    const _iris = { request: stub() as any, register: stub().returns(Promise.resolve()) as any };
     const _irisSetup = stub().returns(Promise.resolve(_iris));
-    const irisConfig = {url: 'a', exchange: 'b', namespace: 'c'};
+    const irisConfig = { url: 'a', exchange: 'b', namespace: 'c' };
     const _config = { get: stub().returns(irisConfig) } as any;
 
     t.equals(typeof init, 'function', 'Service exports a function');
 
-    const setupResult = init({_pack, _irisSetup, _config});
+    const setupResult = init({ _pack, _irisSetup, _config });
 
     t.ok(setupResult instanceof Promise, 'Service setup must return a promise');
 
@@ -33,7 +33,6 @@ test('Testing basic service', (t: Test) => {
     t.equal(addCall.args[0].pattern, 'status.metis', 'The service exposes a status handle');
 
     const statusImp = addCall.args[0].handler;
-
     const impResultP = statusImp({});
 
     t.ok(impResultP instanceof Promise, 'The implementation of status returns a promise');
