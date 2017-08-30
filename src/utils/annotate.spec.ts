@@ -2,10 +2,11 @@ import * as test from 'tape';
 import { Test } from 'tape';
 import { stub } from 'sinon';
 import * as proxyquire from 'proxyquire';
+import * as fs from 'fs';
 
 //-------------------------------
 
-test('Testing Zooma annotate service', (t: Test) => {
+test.only('Testing Zooma annotate service', (t: Test) => {
   t.test('The term is successfully matched', async function(st: Test) {
 
     const field = 'assay';
@@ -20,73 +21,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       ontologyShortName: 'efo'
     };
 
-    const requestResponse = {
-      'uri': undefined,
-      'annotatedProperty': {
-        'uri': undefined,
-        'propertyType': undefined,
-        'propertyValue': 'random exon sequencing'
-      },
-      '_links': {
-        'olslinks': [{
-          'href': 'http://www.ebi.ac.uk/ols/api/terms?iri=http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0003746',
-          'semanticTag': 'http://www.ebi.ac.uk/efo/EFO_0003746'
-        }]
-      },
-      'semanticTags': [
-        'http://www.ebi.ac.uk/efo/EFO_0003746'
-      ],
-      'replacedBy': [],
-      'replaces': [],
-      'derivedFrom': {
-        'uri': 'http://rdf.ebi.ac.uk/resource/zooma/annotation_summary/OLS',
-        'annotatedProperty': {
-          'uri': undefined,
-          'propertyType': undefined,
-          'propertyValue': 'random exon sequencing'
-        },
-        '_links': {
-          'olslinks': [{
-            'href': 'http://www.ebi.ac.uk/efo/EFO_0003746',
-            'semanticTag': 'http://www.ebi.ac.uk/efo/EFO_0003746'
-          }]
-        },
-        'semanticTags': [
-          'http://www.ebi.ac.uk/efo/EFO_0003746'
-        ],
-        'replacedBy': [],
-        'replaces': [],
-        'provenance': {
-          'source': {
-            'type': 'ONTOLOGY',
-            'name': 'http://www.ebi.ac.uk/efo/efo.owl',
-            'uri': 'http://www.ebi.ac.uk/efo/efo.owl'
-          },
-          'evidence': 'COMPUTED_FROM_ONTOLOGY',
-          'accuracy': undefined,
-          'generator': 'http://www.ebi.ac.uk/efo/efo.owl',
-          'generatedDate': undefined,
-          'annotator': undefined,
-          'annotationDate': undefined
-        },
-        'annotatedBiologicalEntities': []
-      },
-      'confidence': 'GOOD',
-      'provenance': {
-        'source': {
-          'type': 'DATABASE',
-          'name': 'zooma',
-          'uri': 'http://www.ebi.ac.uk/spot/zooma'
-        },
-        'evidence': 'COMPUTED_FROM_TEXT_MATCH',
-        'accuracy': undefined,
-        'generator': 'ZOOMA',
-        'generatedDate': 1503678044975,
-        'annotator': 'ZOOMA',
-        'annotationDate': 1503678044975
-      },
-      'annotatedBiologicalEntities': []
-    };
+    const requestResponse: any = JSON.parse(fs.readFileSync('./assets/testResponse.json', 'utf8'));
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
 
@@ -107,8 +42,7 @@ test('Testing Zooma annotate service', (t: Test) => {
         console.log('annotate error');
         // API call failed...
       });
-    console.log('here!');
-    console.log(_annotate.default.toString());
+
     st.assert(mockedReq.called, 'It calls request');
     st.equal(mockedReq.callCount, 1, 'It calls request once');
     st.assert(result instanceof Object, 'Returns an object');
@@ -133,14 +67,14 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term).then(function(data: any) {
-      //console.log('got data', data);
-      return data;
-    }).catch((err: any) => {
-      console.error(err);
-      console.log('annotate error');
-      // API call failed...
-    });
+    const result = await _annotate.default(field, term)
+      .then(function(data: any) {
+        //console.log('got data', data);
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+        console.log('annotate error - API call failed...');
+      });
 
     st.ok(mockedReq.called, 'It calls request');
     st.equal(mockedReq.callCount, 1, 'It calls request once');
@@ -164,14 +98,15 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term).then(function(data: any) {
-      //console.log('got data', data);
-      return data;
-    }).catch((err: any) => {
-      console.error(err);
-      console.log('annotate error');
-      // API call failed...
-    });
+    const result = await _annotate.default(field, term)
+      .then(function(data: any) {
+        //console.log('got data', data);
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+        console.log('annotate error');
+        // API call failed...
+      });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
     st.assert(result instanceof Object, 'Returns an object');
@@ -197,14 +132,15 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term).then(function(data: any) {
-      //console.log('got data', data);
-      return data;
-    }).catch((err: any) => {
-      console.error(err);
-      console.log('annotate error');
-      // API call failed...
-    });
+    const result = await _annotate.default(field, term)
+      .then(function(data: any) {
+        //console.log('got data', data);
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+        console.log('annotate error');
+        // API call failed...
+      });
 
     st.ok(mockedReq.notCalled, 'It doens\'t call request');
     st.assert(result instanceof Object, 'Returns an object');

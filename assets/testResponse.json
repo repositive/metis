@@ -1,0 +1,67 @@
+{
+  "uri": null,
+  "annotatedProperty": {
+    "uri": null,
+    "propertyType": null,
+    "propertyValue": "random exon sequencing"
+  },
+  "_links": {
+    "olslinks": [{
+      "href": "http://www.ebi.ac.uk/ols/api/terms?iri=http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0003746",
+      "semanticTag": "http://www.ebi.ac.uk/efo/EFO_0003746"
+    }]
+  },
+  "semanticTags": [
+    "http://www.ebi.ac.uk/efo/EFO_0003746"
+  ],
+  "replacedBy": [],
+  "replaces": [],
+  "derivedFrom": {
+    "uri": "http://rdf.ebi.ac.uk/resource/zooma/annotation_summary/OLS",
+    "annotatedProperty": {
+      "uri": null,
+      "propertyType": null,
+      "propertyValue": "random exon sequencing"
+    },
+    "_links": {
+      "olslinks": [{
+        "href": "http://www.ebi.ac.uk/efo/EFO_0003746",
+        "semanticTag": "http://www.ebi.ac.uk/efo/EFO_0003746"
+      }]
+    },
+    "semanticTags": [
+      "http://www.ebi.ac.uk/efo/EFO_0003746"
+    ],
+    "replacedBy": [],
+    "replaces": [],
+    "provenance": {
+      "source": {
+        "type": "ONTOLOGY",
+        "name": "http://www.ebi.ac.uk/efo/efo.owl",
+        "uri": "http://www.ebi.ac.uk/efo/efo.owl"
+      },
+      "evidence": "COMPUTED_FROM_ONTOLOGY",
+      "accuracy": null,
+      "generator": "http://www.ebi.ac.uk/efo/efo.owl",
+      "generatedDate": null,
+      "annotator": null,
+      "annotationDate": null
+    },
+    "annotatedBiologicalEntities": []
+  },
+  "confidence": "GOOD",
+  "provenance": {
+    "source": {
+      "type": "DATABASE",
+      "name": "zooma",
+      "uri": "http://www.ebi.ac.uk/spot/zooma"
+    },
+    "evidence": "COMPUTED_FROM_TEXT_MATCH",
+    "accuracy": null,
+    "generator": "ZOOMA",
+    "generatedDate": 1503678044975,
+    "annotator": "ZOOMA",
+    "annotationDate": 1503678044975
+  },
+  "annotatedBiologicalEntities": []
+}

@@ -39,8 +39,6 @@ test('Testing UpdateDataset wrapper', async(t: Test) => {
     'ontologyShortName': 'test'
   };
 
-  //console.log(JSON.stringify(testDatasetFinal, undefined, 2));
-
   const mockedAnnotate = stub().returns(Promise.resolve(annotateResult));
   const _getAnnotatedDataset = proxyquire('./getAnnotatedDataset', {
     './utils/annotate': { default: mockedAnnotate }
@@ -53,16 +51,11 @@ test('Testing UpdateDataset wrapper', async(t: Test) => {
     return data;
   }).catch((err: any) => {
     console.error(err);
-    console.log('annotate error');
-    // API call failed...
+    console.log('annotate error - API call failed...');
   });
-
-  //console.log(JSON.stringify(result, undefined, 2));
-  //console.log(JSON.stringify(testDatasetFinal, undefined, 2));
 
   t.ok(mockedAnnotate.called, 'It calls updateDataset');
   t.equal(mockedAnnotate.callCount, 5, 'Call count = 5');
-
   t.assert(testDatasetFinal instanceof Object, 'Returns an object');
   t.notDeepEqual(testDatasetFinal, testDatasetOriginal, 'The final result is not equal to the initial dataset');
   t.end();
