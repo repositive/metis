@@ -1,6 +1,6 @@
 import irisSetup from '@repositive/iris';
 import * as config from 'config';
-import annotate from './utils/annotate';
+import annotate from './annotate';
 
 const pack = require('../package.json');
 
