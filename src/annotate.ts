@@ -13,7 +13,7 @@ export default async function annotate(field: string, term: string) {
 
   const ontology = ontologyDict[field];
 
-  const excludedTerms = ['n/a', 'na', 'none', 'not available', 'other', 'unavailable', 'unknown', 'unspecified'];
+  const excludedTerms = ['n/a', 'na', 'none', 'not available', 'not specified', 'other', 'unavailable', 'unknown', 'unspecified'];
 
   if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
     return; // if term is excluded return nothing
