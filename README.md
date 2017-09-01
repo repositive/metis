@@ -7,7 +7,7 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 ### Update Datasets with Ontology Terms
 
-Metis uses Iris to register a `action.annotate.metis` pattern.
+Metis uses Iris to register a `action.annotate` pattern.
 
 
 ## About Docker Compose

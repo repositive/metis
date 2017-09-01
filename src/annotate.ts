@@ -2,7 +2,10 @@ import * as _request from 'request-promise';
 
 //-----------------------
 
-export default async function annotate(field: string, term: string) {
+export default async function annotate(opts: { payload: { field: string, term: string } }) {
+
+  const field = opts.payload.field;
+  const term = opts.payload.term;
 
   const ontologyDict = {
     'assay': 'efo,edam',

@@ -31,7 +31,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term)
+    const result = await _annotate.default({ payload: { field, term } })
       .then(function(data: any) {
         //console.log('got data', data);
         return data;
@@ -55,7 +55,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const field = 'tissue';
     const term = 'viiat';
 
-    const annotateResult = { originalTerm: 'viiat' };
+    const annotateResult = undefined;
     const requestResponse = undefined;
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -65,7 +65,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term)
+    const result = await _annotate.default({ payload: { field, term } })
       .then(function(data: any) {
         //console.log('got data', data);
         return data;
@@ -76,8 +76,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.ok(mockedReq.called, 'It calls request');
     st.equal(mockedReq.callCount, 1, 'It calls request once');
-    st.assert(result instanceof Object, 'Returns an object');
-    st.assert(!('ontologyTerm' in result), 'Result doesn\'t have ontologyTerm');
+    st.assert(typeof result === 'undefined', 'Returns undefined');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
     st.end();
   });
@@ -86,7 +85,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     const field = 'tissue';
     const term = undefined;
-    const annotateResult = { originalTerm: undefined };
+    const annotateResult = undefined;
     const requestResponse = {};
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -96,7 +95,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term)
+    const result = await _annotate.default({ payload: { field, term } })
       .then(function(data: any) {
         //console.log('got data', data);
         return data;
@@ -107,8 +106,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
-    st.assert(result instanceof Object, 'Returns an object');
-    st.assert(!('ontologyTerm' in result), 'Result doesn\'t have ontologyTerm');
+    st.assert(typeof result === 'undefined', 'Returns undefined');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
     st.end();
   });
@@ -117,7 +115,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     const field = 'tissue';
     const term = 'none';
-    const annotateResult = { originalTerm: 'none' };
+    const annotateResult = undefined;
     const requestResponse = {};
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -127,7 +125,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.equals(typeof _annotate.default, 'function', 'The module exports a function called annotate');
 
-    const result = await _annotate.default(field, term)
+    const result = await _annotate.default({ payload: { field, term } })
       .then(function(data: any) {
         //console.log('got data', data);
         return data;
@@ -138,8 +136,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
-    st.assert(result instanceof Object, 'Returns an object');
-    st.assert(!('ontologyTerm' in result), 'Result doesn\'t have ontologyTerm');
+    st.assert(typeof result === 'undefined', 'Returns undefined');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
     st.end();
   });

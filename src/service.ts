@@ -28,7 +28,7 @@ export default async function init({
   });
 
   iris.register({
-    pattern: 'action.annotate.metis',
+    pattern: 'action.annotate',
     handler: annotate
   });
 
