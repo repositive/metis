@@ -24,6 +24,9 @@ deployment:
       - docker build -t registry.repositive.io:5000/metis:$CIRCLE_BUILD_NUM .
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS registry.repositive.io:5000
       - docker push registry.repositive.io:5000/metis:$CIRCLE_BUILD_NUM
+      - curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-staging.repositive.io/kubeconfig-staging
+      - TAG=$CIRCLE_BUILD_NUM envsubst '${TAG}' < k8s.staging.yml > deploy.yml
+      - KUBECONFIG=kubeconfig-staging $HOME/kubectl apply -f deploy.yml
 
   release:
     tag: /v[0-9]+(\.[0-9]+)*/
@@ -31,3 +34,6 @@ deployment:
       - docker build -t registry.repositive.io:5000/metis:$CIRCLE_TAG .
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS registry.repositive.io:5000
       - docker push registry.repositive.io:5000/metis:$CIRCLE_TAG
+      - curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-production.repositive.io/kubeconfig-production
+      - TAG=$CIRCLE_TAG envsubst '${TAG}' < k8s.production.yml > deploy.yml
+      - KUBECONFIG=kubeconfig-production $HOME/kubectl apply -f deploy.yml
