@@ -1,8 +1,19 @@
 import * as _request from 'request-promise';
+import * as Ajv from 'ajv';
+import * as fs from 'fs';
 
 //-----------------------
 
 export default async function annotate(opts: { payload: { field: string, term: string } }) {
+
+  const schema: any = JSON.parse(fs.readFileSync('./schemas/is-valid.json', 'utf8'));
+  const data: any = opts.payload;
+
+  const ajv = new Ajv({ allErrors: true, verbose: true });
+  const valid = ajv.validate(schema, data);
+  if (!valid) {
+    console.log(ajv.errors);
+  } else { console.log('No schema errors'); }
 
   const field = opts.payload.field;
   const term = opts.payload.term;
