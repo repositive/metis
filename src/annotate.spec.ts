@@ -39,6 +39,7 @@ test('Testing Zooma annotate service', (t: Test) => {
         console.error(err);
         console.log('annotate error');
         // API call failed...
+        st.notOk(err, 'There is an error');
       });
 
     st.assert(mockedReq.called, 'It calls request');
@@ -72,6 +73,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       }).catch((err: any) => {
         console.error(err);
         console.log('annotate error - API call failed...');
+        st.notOk(err, 'There is an error');
       });
 
     st.ok(mockedReq.called, 'It calls request');
@@ -81,7 +83,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     st.end();
   });
 
-  t.test('If term is \'undefined\' there is no error', async function(st: Test) {
+  t.test('If term is \'undefined\' there is an error', async function(st: Test) {
 
     const field = 'tissue';
     const term = undefined;
@@ -97,12 +99,9 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     const result = await _annotate.default({ payload: { field, term } })
       .then(function(data: any) {
-        //console.log('got data', data);
         return data;
       }).catch((err: any) => {
-        console.error(err);
-        console.log('annotate error');
-        // API call failed...
+        st.ok(err, 'There is an error');
       });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
@@ -133,6 +132,7 @@ test('Testing Zooma annotate service', (t: Test) => {
         console.error(err);
         console.log('annotate error');
         // API call failed...
+        st.notOk(err, 'There is an error');
       });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
