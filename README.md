@@ -9,6 +9,11 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 Metis uses Iris to register a `action.annotate` pattern.
 
+The payload must be in the format:
+```
+{ payload: { field: string, term: string } }
+```
+
 
 ## About Docker Compose
 
