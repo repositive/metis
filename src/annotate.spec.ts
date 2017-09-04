@@ -50,6 +50,114 @@ test('Testing Zooma annotate service', (t: Test) => {
 
   });
 
+  t.test('The shortname is the accession prefix', async function(st: Test) {
+
+    const field = 'disease';
+    const term = 'abc';
+
+    const annotateResult = {
+      originalTerm: 'abc',
+      ontologyTerm: 'abc disease',
+      ontologyIRI: 'http://www.test.net/abc/ABCDE_166',
+      ontologyConfidence: 'HIGH',
+      ontologySource: 'https://www.test',
+      ontologyShortName: 'abcde'
+    };
+
+    const requestResponse: any = {
+      'annotatedProperty': { 'propertyValue': 'abc disease' },
+      '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/ABCDE_166' }] },
+      'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
+      'confidence': 'HIGH'
+    };
+
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
+    const _annotate = proxyquire('./annotate', { 'request-promise': mockedReq });
+
+    const result = await _annotate.default({ payload: { field, term } })
+      .then(function(data: any) {
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+      });
+
+    st.assert(typeof result.ontologyShortName === 'string', 'Ontology shortname is a string');
+    st.deepEquals(result.ontologyShortName, annotateResult.ontologyShortName, 'The shortname is equal to the accession prefix');
+    st.end();
+  });
+
+  t.test('The shortname is correct when the accession prefix is unusual', async function(st: Test) {
+
+    const field = 'disease';
+    const term = 'abc';
+
+    const annotateResult = {
+      originalTerm: 'abc',
+      ontologyTerm: 'abc disease',
+      ontologyIRI: 'http://www.test.net/abc/topic_166',
+      ontologyConfidence: 'HIGH',
+      ontologySource: 'https://www.test',
+      ontologyShortName: 'edam'
+    };
+
+    const requestResponse: any = {
+      'annotatedProperty': { 'propertyValue': 'abc disease' },
+      '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/topic_166' }] },
+      'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
+      'confidence': 'HIGH'
+    };
+
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
+    const _annotate = proxyquire('./annotate', { 'request-promise': mockedReq });
+
+    const result = await _annotate.default({ payload: { field, term } })
+      .then(function(data: any) {
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+      });
+
+    st.assert(typeof result.ontologyShortName === 'string', 'Ontology shortname is a string');
+    st.deepEquals(result.ontologyShortName, annotateResult.ontologyShortName, 'The shortname is correct');
+    st.end();
+  });
+
+  t.test('The shortname is correct when the accession prefix is Orphanet', async function(st: Test) {
+
+    const field = 'disease';
+    const term = 'abc';
+
+    const annotateResult = {
+      originalTerm: 'abc',
+      ontologyTerm: 'abc disease',
+      ontologyIRI: 'http://www.test.net/abc/Orphanet_166',
+      ontologyConfidence: 'HIGH',
+      ontologySource: 'https://www.test',
+      ontologyShortName: 'ordo'
+    };
+
+    const requestResponse: any = {
+      'annotatedProperty': { 'propertyValue': 'abc disease' },
+      '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/Orphanet_166' }] },
+      'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
+      'confidence': 'HIGH'
+    };
+
+    const mockedReq = stub().returns(Promise.resolve([requestResponse]));
+    const _annotate = proxyquire('./annotate', { 'request-promise': mockedReq });
+
+    const result = await _annotate.default({ payload: { field, term } })
+      .then(function(data: any) {
+        return data;
+      }).catch((err: any) => {
+        console.error(err);
+      });
+
+    st.assert(typeof result.ontologyShortName === 'string', 'Ontology shortname is a string');
+    st.deepEquals(result.ontologyShortName, annotateResult.ontologyShortName, 'The shortname is correct');
+    st.end();
+  });
+
   t.test('An unknown term is not matched', async function(st: Test) {
 
     const field = 'tissue';
