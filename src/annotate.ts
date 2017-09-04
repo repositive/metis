@@ -1,19 +1,11 @@
-// pass a dataset to function
-// for each attributes field
-// iterate over array
-// value = original term
-// return standardised value and iri, and confidence
-// add this to element of array, update array.
-// At end, need to update record in db.
-//----------------------------------------
-
 import * as _request from 'request-promise';
 
 //-----------------------
 
-export default async function annotate(field: string, term: string) {
+export default async function annotate(opts: { payload: { field: string, term: string } }) {
 
-  let result: any = { originalTerm: term };
+  const field = opts.payload.field;
+  const term = opts.payload.term;
 
   const ontologyDict = {
     'assay': 'efo,edam',
@@ -24,10 +16,10 @@ export default async function annotate(field: string, term: string) {
 
   const ontology = ontologyDict[field];
 
-  const excludedTerms = ['n/a', 'na', 'none', 'not available', 'other', 'unavailable', 'unknown', 'unspecified'];
+  const excludedTerms = ['n/a', 'na', 'none', 'not available', 'not specified', 'other', 'unavailable', 'unknown', 'unspecified'];
 
   if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
-    return result;
+    return; // if term is excluded return nothing
   }
 
   const options = {
@@ -45,9 +37,7 @@ export default async function annotate(field: string, term: string) {
       return res;
     })
     .catch((err: any) => {
-      console.error(err);
-      // API call failed...
-      console.log('_request error');
+      console.error('_request error: ' + err);
     });
 
   json = json[0];
@@ -60,8 +50,7 @@ export default async function annotate(field: string, term: string) {
     const uriSplit = json._links.olslinks[0].semanticTag.split('/');
     const ontologyShortName = uriSplit.slice(-2)[0];
 
-    result = {
-      ...result,
+    const result = {
       originalTerm: term,
       ontologyTerm: json.annotatedProperty.propertyValue.toLowerCase(),
       ontologyIRI: json._links.olslinks[0].semanticTag,
@@ -72,12 +61,10 @@ export default async function annotate(field: string, term: string) {
       ontologyShortName // shortname from IRI
 
     };
+
+    return result;
   }
 
   //console.log(result);
-  return result; // if there is no match, returns object with original term
+  return; // if there is no match, returns nothing
 }
-
-//----------------------------------------
-
-//annotate('tissue', 'viiat');

@@ -28,7 +28,7 @@ test('Testing basic service', (t: Test) => {
 
     t.ok(_iris.register.called, 'Add from iris is called');
 
-    const addCall = _iris.register.getCall(0);
+    let addCall = _iris.register.getCall(0);
 
     t.equal(addCall.args[0].pattern, 'status.metis', 'The service exposes a status handle');
 
@@ -45,6 +45,9 @@ test('Testing basic service', (t: Test) => {
       .catch(() => {
         t.notOk(true, 'Implementation should not blow up');
       });
+
+    addCall = _iris.register.getCall(1);
+    t.equal(addCall.args[0].pattern, 'action.annotate', 'The service exposes an annotate handle');
   }
 
   _test()

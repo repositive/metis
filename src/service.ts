@@ -1,5 +1,6 @@
 import irisSetup from '@repositive/iris';
 import * as config from 'config';
+import annotate from './annotate';
 
 const pack = require('../package.json');
 
@@ -12,7 +13,7 @@ export default async function init({
   _irisSetup ? : typeof irisSetup,
   _pack ? : { version: string }
 }): Promise < void > {
-  const irisOpts = _config.get<any>('iris');
+  const irisOpts = _config.get < any > ('iris');
 
   const iris = await _irisSetup(irisOpts);
 
@@ -25,4 +26,10 @@ export default async function init({
       };
     }
   });
+
+  iris.register({
+    pattern: 'action.annotate',
+    handler: annotate
+  });
+
 }
