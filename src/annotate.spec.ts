@@ -249,5 +249,25 @@ test('Testing Zooma annotate service', (t: Test) => {
     st.end();
   });
 
+  t.test('Request errors are handled', async function(st: Test) {
+
+    const field = 'tissue';
+    const term = 'abc';
+
+    const mockedReq = stub().returns(Promise.reject(new Error('fail')));
+
+    const _annotate = proxyquire('./annotate', {
+      'request-promise': mockedReq
+    });
+
+    const result = await _annotate.default({ payload: { field, term } })
+      .then(function(data: any) {
+        return data;
+      }).catch((err: any) => {
+        st.assert(err, 'There is an error from the request');
+      });
+    st.end();
+  });
+
   t.end();
 });
