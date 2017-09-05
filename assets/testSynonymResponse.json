@@ -1,0 +1,86 @@
+{
+  "iri": "http://www.ebi.ac.uk/efo/EFO_0003843",
+  "label": "pain",
+  "description": [
+    "An unpleasant sensation induced by noxious stimuli which are detected by NERVE ENDINGS of NOCICEPTIVE NEURONS."
+  ],
+  "annotation": {
+    "ICD9_definition_citation": [
+      "ICD9:338-338.99"
+    ],
+    "MSH_definition_citation": [
+      "MSH:D010146"
+    ],
+    "NCI_Thesaurus_definition_citation": [
+      "NCIt:C3303"
+    ],
+    "SNOMEDCT_definition_citation": [
+      "SNOMEDCT:22253000"
+    ],
+    "bioportal_provenance": [
+      "Pain, Crushing[accessedResource: MSH:D010146][accessDate: 05-04-2011]",
+      "Sufferings, Physical[accessedResource: MSH:D010146][accessDate: 05-04-2011]"
+    ],
+    "gwas_trait": [
+      "true"
+    ],
+    "term editor": [
+      "Tomasz Adamusiak"
+    ]
+  },
+  "synonyms": [
+    "Burning Pain",
+    "Pain, Radiating",
+    "Pains, Radiating"
+
+  ],
+  "ontology_name": "efo",
+  "ontology_prefix": "EFO",
+  "ontology_iri": "http://www.ebi.ac.uk/efo/efo.owl",
+  "is_obsolete": false,
+  "term_replaced_by": null,
+  "is_defining_ontology": true,
+  "has_children": true,
+  "is_root": false,
+  "short_form": "EFO_0003843",
+  "obo_id": "EFO:0003843",
+  "in_subset": null,
+  "obo_definition_citation": null,
+  "obo_xref": null,
+  "obo_synonym": null,
+  "_links": {
+    "self": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843"
+    },
+    "parents": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/parents"
+    },
+    "ancestors": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/ancestors"
+    },
+    "hierarchicalParents": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/hierarchicalParents"
+    },
+    "hierarchicalAncestors": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/hierarchicalAncestors"
+    },
+    "jstree": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/jstree"
+    },
+    "children": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/children"
+    },
+    "descendants": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/descendants"
+    },
+    "hierarchicalChildren": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/hierarchicalChildren"
+    },
+    "hierarchicalDescendants": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/hierarchicalDescendants"
+    },
+    "graph": {
+      "href": "http://www.ebi.ac.uk/ols/api/ontologies/efo/terms/http%253A%252F%252Fwww.ebi.ac.uk%252Fefo%252FEFO_0003843/graph"
+    }
+  }
+}
