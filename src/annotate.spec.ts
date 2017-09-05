@@ -249,7 +249,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     st.end();
   });
 
-  t.test('Request errors are handled', async function(st: Test) {
+  t.test('Request errors throw a new error', async function(st: Test) {
 
     const field = 'tissue';
     const term = 'abc';

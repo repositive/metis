@@ -37,7 +37,8 @@ export default async function annotate(opts: { payload: { field: string, term: s
       return res;
     })
     .catch((err: any) => {
-      console.error('_request error: ' + err);
+      //console.error('_request error: ' + err);
+      throw new Error('_request error: ' + err);
     });
 
   json = json[0];
