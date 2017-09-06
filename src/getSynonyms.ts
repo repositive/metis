@@ -16,30 +16,21 @@ export default async function getSynonyms(opts: { payload: { ontologyIRI: string
     json: true
   };
 
-  const jsonResponse: any = await _request(options)
-    .then((result: any) => {
-      return result;
+  const json: any = await _request(options)
+    .then((res: any) => {
+      return res;
     })
     .catch((err: any) => {
       //console.log('_request error: ' + err);
       throw new Error('_request error: ' + err);
     });
 
-  if (jsonResponse) {
-    //console.log(JSON.stringify(jsonResponse, undefined, 2));
-    const parsed = jsonResponse;
+  const result: any = {
+    ontologyIRI: iri as string,
+    ontologyTerm: json.label as string,
+    synonyms: json.synonyms as any[]
+  };
 
-    const result: any = {
-      ontologyIRI: iri as string,
-      ontologyTerm: parsed.label as string,
-      synonyms: parsed.synonyms as any[]
-    };
+  return result;
 
-    //console.log(result);
-    return result;
-  } else { return; }
 }
-
-//--------------
-
-//getSynonyms({ payload: { ontologyIRI: 'http://www.ebi.ac.uk/efo/EFO_0003843', ontologyShortName: 'efo' } });

@@ -6,7 +6,7 @@ import * as fs from 'fs';
 
 //-------------------------------
 
-test.only('Testing getSynonym service', (t: Test) => {
+test('Testing getSynonym service', (t: Test) => {
   t.test('Returns synonyms', async function(st: Test) {
 
     const ontology: string = 'efo';
@@ -46,6 +46,32 @@ test.only('Testing getSynonym service', (t: Test) => {
     st.assert(result instanceof Object, 'Returns an object');
     st.assert(('synonyms' in result), 'Result has synonyms');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
+    st.end();
+  });
+
+  //----------------------------
+
+  t.test('Request throws error if ontology name is unknown', async function(st: Test) {
+
+    const ontology: string = 'zzzz';
+    const iri: string = 'http://www.ebi.ac.uk/efo/EFO_0003843';
+
+    const mockedReq = stub().returns(Promise.reject(new Error('fail')));
+
+    const _getSynonym = proxyquire('./getSynonyms', {
+      'request-promise': mockedReq
+    });
+
+    const result = await _getSynonym.default({ payload: { ontologyIRI: iri, ontologyShortName: ontology } })
+      .then(function(data: any) {
+        //console.log('got data', data);
+        return data;
+      }).catch((err: any) => {
+        console.log('API call failed...' + err);
+        st.assert(err, 'There is an error from request');
+      });
+
+    st.equal(mockedReq.callCount, 1, 'It calls request once');
     st.end();
   });
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "title": "Valid synonyms payload",
+  "id": "synonyms-is-valid.json",
+  "type": "object",
+  "properties": {
+    "ontologyIRI": {
+      "type": "string",
+      "description": "The iri for the ontology term."
+    },
+    "ontologyShortName": {
+      "type": "string",
+      "description": "The short name for the ontology from which the term comes from."
+    }
+  },
+  "required": ["ontologyIRI", "ontologyShortName"],
+  "additionalProperties": false
+}
