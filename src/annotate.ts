@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 //-----------------------
 
-const schema: any = JSON.parse(fs.readFileSync('./schemas/is-valid.json', 'utf8'));
+const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
 
 export default async function annotate(opts: { payload: { field: string, term: string } }) {
 
