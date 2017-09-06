@@ -15,11 +15,7 @@ test('Testing getSynonym service', (t: Test) => {
     const annotateResult = {
       ontologyIRI: 'http://www.ebi.ac.uk/efo/EFO_0003843',
       ontologyTerm: 'pain',
-      synonyms: [
-        'Burning Pain',
-        'Pain, Radiating',
-        'Pains, Radiating'
-      ]
+      synonyms: ['Burning Pain', 'Pain, Radiating', 'Pains, Radiating']
     };
 
     const requestResponse: any = JSON.parse(fs.readFileSync('./assets/testSynonymResponse.json', 'utf8'));
@@ -51,10 +47,10 @@ test('Testing getSynonym service', (t: Test) => {
 
   //----------------------------
 
-  t.test('Request throws error if ontology name is unknown', async function(st: Test) {
+  t.test('Bad request throws error', async function(st: Test) {
 
     const ontology: string = 'zzzz';
-    const iri: string = 'http://www.ebi.ac.uk/efo/EFO_0003843';
+    const iri: string = 'http://www.badiri/test/';
 
     const mockedReq = stub().returns(Promise.reject(new Error('fail')));
 
