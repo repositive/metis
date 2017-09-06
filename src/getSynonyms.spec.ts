@@ -47,7 +47,7 @@ test('Testing getSynonym service', (t: Test) => {
 
   //----------------------------
 
-  t.test('Bad request throws error', async function(st: Test) {
+  t.test('Bad synonyms request throws error', async function(st: Test) {
 
     const ontology: string = 'zzzz';
     const iri: string = 'http://www.badiri/test/';
@@ -63,11 +63,34 @@ test('Testing getSynonym service', (t: Test) => {
         //console.log('got data', data);
         return data;
       }).catch((err: any) => {
-        console.log('API call failed...' + err);
+        console.log('API call failed... ' + err);
         st.assert(err, 'There is an error from request');
       });
 
     st.equal(mockedReq.callCount, 1, 'It calls request once');
+    st.end();
+  });
+
+  //-----------------------------
+  t.test('Bad synonyms payload throws error', async function(st: Test) {
+
+    const iri: string = 'http://www.badiri/test/';
+
+    const requestResponse: any = {};
+    const mockedReq = stub().returns(Promise.resolve(requestResponse));
+
+    const _getSynonym = proxyquire('./getSynonyms', {
+      'request-promise': mockedReq
+    });
+
+    const result = await _getSynonym.default({ payload: { ontologyIRI: iri } })
+      .then(function(data: any) {
+        return data;
+      }).catch((err: any) => {
+        st.ok(err, 'There is a payload schema error');
+      });
+
+    st.notOk(mockedReq.called, 'It doesn\'t call request');
     st.end();
   });
 
