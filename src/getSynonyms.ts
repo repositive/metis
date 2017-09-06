@@ -1,8 +1,20 @@
 import * as _request from 'request-promise';
+import * as fs from 'fs';
+import * as Ajv from 'ajv';
 
 //-----------------------
+const schema: any = JSON.parse(fs.readFileSync('./schemas/synonyms-is-valid.json', 'utf8'));
 
 export default async function getSynonyms(opts: { payload: { ontologyIRI: string, ontologyShortName: string } }) {
+
+  const data: any = opts.payload;
+
+  const ajv = new Ajv({ allErrors: true, verbose: true });
+  const valid = ajv.validate(schema, data);
+  if (!valid) {
+    console.log(ajv.errors);
+    throw new Error('Payload schema error');
+  }
 
   const ontology: string = opts.payload.ontologyShortName;
   const iri: string = opts.payload.ontologyIRI;
