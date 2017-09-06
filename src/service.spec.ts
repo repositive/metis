@@ -48,6 +48,8 @@ test('Testing basic service', (t: Test) => {
 
     addCall = _iris.register.getCall(1);
     t.equal(addCall.args[0].pattern, 'action.annotate', 'The service exposes an annotate handle');
+    addCall = _iris.register.getCall(2);
+    t.equal(addCall.args[0].pattern, 'action.get.synonyms', 'The service exposes a getSynonyms handler');
   }
 
   _test()

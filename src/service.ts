@@ -1,6 +1,7 @@
 import irisSetup from '@repositive/iris';
 import * as config from 'config';
 import annotate from './annotate';
+import getSynonyms from './getSynonyms';
 
 const pack = require('../package.json');
 
@@ -32,4 +33,8 @@ export default async function init({
     handler: annotate
   });
 
+  iris.register({
+    pattern: 'action.get.synonyms',
+    handler: getSynonyms
+  });
 }
