@@ -5,20 +5,18 @@ import * as fs from 'fs';
 //-----------------------
 
 const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
+const ajv = new Ajv({ allErrors: true, verbose: true });
 
-export default async function annotate(opts: { payload: { field: string, term: string } }) {
+export default async function annotate({payload, _ajv = ajv, _schema = schema}: { payload: { field: string, term: string }, _ajv: typeof ajv, _schema: typeof schema}) {
 
-  const data: any = opts.payload;
+  const data: any = payload;
+  const {field, term} = payload;
 
-  const ajv = new Ajv({ allErrors: true, verbose: true });
   const valid = ajv.validate(schema, data);
   if (!valid) {
     console.log(ajv.errors);
     throw new Error('Payload schema error');
   }
-
-  const field = opts.payload.field;
-  const term = opts.payload.term;
 
   const ontologyDict = {
     'assay': 'efo,edam',
