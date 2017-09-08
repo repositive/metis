@@ -15,7 +15,7 @@
     "make": "rm -fr dist && tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "test": "nyc --reporter lcov tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec",
-    "coverage": "nyc check-coverage --lines 80 --functions 80 --branches 80"
+    "coverage": "nyc check-coverage --lines 70 --functions 70 --branches 70"
   },
   "nyc": {
     "extension": [
@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@repositive/iris": "^0.5.0",
+    "ajv": "^5.2.2",
     "config": "^1.26.2",
     "node-fetch": "^1.7.2",
     "ramda": "^0.24.1",

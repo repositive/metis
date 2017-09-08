@@ -2,7 +2,7 @@ version: '2'
 services:
   metis:
     command: /bin/sh -c "npm i && npm run make && npm run startDev"
-    image: node:8
+    image: node:latest
     working_dir: /opt
     volumes:
       - .:/opt
