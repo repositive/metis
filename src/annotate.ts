@@ -32,7 +32,7 @@ export default async function annotate(opts: { payload: { field: string, term: s
   const excludedTerms = ['n/a', 'na', 'none', 'not available', 'not specified', 'other', 'unavailable', 'unknown', 'unspecified'];
 
   if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
-    return; // if term is excluded return nothing
+    return; // if term is excluded return undefined
   }
 
   const options = {
@@ -50,7 +50,8 @@ export default async function annotate(opts: { payload: { field: string, term: s
       return res;
     })
     .catch((err: any) => {
-      console.error('_request error: ' + err);
+      //console.error('_request error: ' + err);
+      throw new Error('_request error: ' + err);
     });
 
   json = json[0];
@@ -61,7 +62,11 @@ export default async function annotate(opts: { payload: { field: string, term: s
   if (json) {
 
     const uriSplit = json._links.olslinks[0].semanticTag.split('/');
-    const ontologyShortName = uriSplit.slice(-2)[0];
+
+    // make ontologyShortName equal to ontology accession prefix
+    let ontologyShortName = uriSplit.slice(-1)[0].split('_')[0].toLowerCase();
+    if (['format', 'operation', 'topic'].indexOf(ontologyShortName) > -1) ontologyShortName = 'edam';
+    if (ontologyShortName === 'orphanet') ontologyShortName = 'ordo';
 
     const result = {
       originalTerm: term,
@@ -74,10 +79,9 @@ export default async function annotate(opts: { payload: { field: string, term: s
       ontologyShortName // shortname from IRI
 
     };
-
+    //console.log(result);
     return result;
   }
 
-  //console.log(result);
-  return; // if there is no match, returns nothing
+  return; // if there is no match, returns undefined
 }
