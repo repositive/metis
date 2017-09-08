@@ -9,9 +9,9 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 Metis uses Iris to register a `action.annotate` pattern.
 
-The payload must be in the format:
+The payload must be in the [format](schemas/annotate-is-valid.json):
 ```
-{ payload: { field: string, term: string } }
+{ field: string, term: string }
 ```
 
 

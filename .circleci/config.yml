@@ -1,0 +1,187 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/metis
+
+jobs:
+  test:
+    <<: *defaults
+    docker:
+      - image: circleci/node:6
+    steps:
+      - checkout
+      # - run:
+      #     name: update-npm
+      #     command: |
+      #       sudo npm install -g npm@latest
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: |
+            npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: make
+          command: |
+            npm run make
+      - run:
+          name: lint
+          command: |
+            npm run lint
+#      - run:
+#          name: test
+#          command: |
+#            npm test
+
+#      - run:
+#          name: code-coverage
+#          command: './node_modules/.bin/nyc report --reporter=text-lcov'
+#      - store_artifacts:
+#          path: test-results.xml
+#          prefix: tests
+#      - store_artifacts:
+#          path: coverage
+#          prefix: coverage
+#      - store_test_results:
+#          path: test-results.xml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+            - node_modules
+
+  setup_release:
+    <<: *defaults
+    docker:
+      - image: istareldritch/curl-envsubst
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Setup workspace
+          command: |
+            mv workspace/dist dist
+            mv workspace/node_modules node_modules
+
+      # Kubectl Setup
+      - restore_cache:
+          key: kubectl-$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+      - run:
+          name: install-kubectl
+          command: |
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x ./kubectl
+      - run:
+          name: Push application Docker image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-staging.repositive.io/kubeconfig-staging
+              TAG=$CIRCLE_SHA1 envsubst '${TAG}' < .circleci/k8s.staging.yml > deploy-staging.yml
+              if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
+                curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-staging.repositive.io/kubeconfig-production
+                TAG=$CIRCLE_TAG envsubst '${TAG}' < .circleci/k8s.production.yml > deploy-production.yml
+              fi
+            fi
+
+      - save_cache:
+          key: kubectl-$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+          paths:
+            - ./kubectl
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+            - node_modules
+            - kubectl
+            - kubeconfig-staging
+            - kubeconfig-production
+            - deploy-staging.yml
+            - deploy-production.yml
+
+  release:
+    <<: *defaults
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Setup workspace
+          command: |
+            mv workspace/dist dist
+            mv workspace/node_modules node_modules
+            mv workspace/kubectl kubectl
+            mv workspace/kubeconfig-staging kubeconfig-staging 2> /dev/null || echo "No kubectl config for staging"
+            mv workspace/deploy-staging.yml deploy-staging.yml 2> /dev/null || echo "No deployment config for staging"
+            mv workspace/kubeconfig-production kubeconfig-production 2> /dev/null || echo "No kubectl config for production"
+            mv workspace/deploy-production.yml deploy-production.yml 2> /dev/null || echo "No deployment config for production"
+      - setup_remote_docker
+
+      # Build the image
+      - restore_cache:
+          keys:
+            - v1-{{ .Branch }}
+          paths:
+            - /caches/app.tar
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/app.tar | true
+      - run:
+          name: Build application Docker image
+          command: |
+              docker build --cache-from=app -t app .
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker save -o /caches/app.tar app
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /caches/app.tar
+
+      # Push to the docker registry
+      - run:
+          name: Login in the docker registry
+          command: |
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS registry.repositive.io:5000
+      - deploy:
+          name: Push application Docker image
+          command: |
+            if [ -f ./deploy-staging.yml ]; then
+              docker tag app "registry.repositive.io:5000/metis:${CIRCLE_SHA1}"
+              docker push "registry.repositive.io:5000/metis:${CIRCLE_SHA1}"
+              KUBECONFIG=kubeconfig-staging ./kubectl apply -f deploy-staging.yml
+              if [ -f ./deploy-production.yml ]; then
+                docker tag app "registry.repositive.io:5000/metis:${CIRCLE_TAG}"
+                docker push "registry.repositive.io:5000/metis:${CIRCLE_TAG}"
+                KUBECONFIG=kubeconfig-production ./kubectl apply -f deploy-production.yml
+              fi
+            fi
+
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test
+      - setup_release:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - release:
+          requires:
+            - test
+            - setup_release
+          filters:
+            branches:
+              only: master
