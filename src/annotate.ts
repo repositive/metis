@@ -1,11 +1,22 @@
 import * as _request from 'request-promise';
+import * as Ajv from 'ajv';
+import * as fs from 'fs';
 
 //-----------------------
 
-export default async function annotate(opts: { payload: { field: string, term: string } }) {
+const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
+const ajv = new Ajv({ allErrors: true, verbose: true });
 
-  const field = opts.payload.field;
-  const term = opts.payload.term;
+export default async function annotate({payload, _ajv = ajv, _schema = schema}: { payload: { field: string, term: string }, _ajv: typeof ajv, _schema: typeof schema}) {
+
+  const data: any = payload;
+  const {field, term} = payload;
+
+  const valid = ajv.validate(schema, data);
+  if (!valid) {
+    console.log(ajv.errors);
+    throw new Error('Payload schema error');
+  }
 
   const ontologyDict = {
     'assay': 'efo,edam',
@@ -19,7 +30,7 @@ export default async function annotate(opts: { payload: { field: string, term: s
   const excludedTerms = ['n/a', 'na', 'none', 'not available', 'not specified', 'other', 'unavailable', 'unknown', 'unspecified'];
 
   if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
-    return; // if term is excluded return nothing
+    return; // if term is excluded return undefined
   }
 
   const options = {
@@ -37,7 +48,8 @@ export default async function annotate(opts: { payload: { field: string, term: s
       return res;
     })
     .catch((err: any) => {
-      console.error('_request error: ' + err);
+      //console.error('_request error: ' + err);
+      throw new Error('_request error: ' + err);
     });
 
   json = json[0];
@@ -48,7 +60,11 @@ export default async function annotate(opts: { payload: { field: string, term: s
   if (json) {
 
     const uriSplit = json._links.olslinks[0].semanticTag.split('/');
-    const ontologyShortName = uriSplit.slice(-2)[0];
+
+    // make ontologyShortName equal to ontology accession prefix
+    let ontologyShortName = uriSplit.slice(-1)[0].split('_')[0].toLowerCase();
+    if (['format', 'operation', 'topic'].indexOf(ontologyShortName) > -1) ontologyShortName = 'edam';
+    if (ontologyShortName === 'orphanet') ontologyShortName = 'ordo';
 
     const result = {
       originalTerm: term,
@@ -61,10 +77,9 @@ export default async function annotate(opts: { payload: { field: string, term: s
       ontologyShortName // shortname from IRI
 
     };
-
+    //console.log(result);
     return result;
   }
 
-  //console.log(result);
-  return; // if there is no match, returns nothing
+  return; // if there is no match, returns undefined
 }

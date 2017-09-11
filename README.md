@@ -9,13 +9,19 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 ### To use
 To annotate with ontology terms Metis uses Iris to register a `action.annotate` pattern.
+The annotate payload must be in the [format](schemas/annotate-is-valid.json):
+```
+{ field: string, term: string }
+```
 
 To get synonyms for an ontology term Metis uses Iris to register a `action.get.synonyms` pattern.
+The synonyms payload must be in the [format](schemas/synonyms-is-valid.json):
+```
+{ ontologyIRI: string, ontologyShortName: string }
+```
 
-The synonyms payload must be in the format:
-```
-{ payload: { ontologyIRI: string, ontologyShortName: string } }
-```
+
+>>>>>>> origin/master
 
 ## About Docker Compose
 
