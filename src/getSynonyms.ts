@@ -4,20 +4,20 @@ import * as Ajv from 'ajv';
 
 //-----------------------
 const schema: any = JSON.parse(fs.readFileSync('./schemas/synonyms-is-valid.json', 'utf8'));
+const ajv = new Ajv({ allErrors: true, verbose: true });
 
-export default async function getSynonyms(opts: { payload: { ontologyIRI: string, ontologyShortName: string } }) {
+export default async function getSynonyms({ payload, _ajv = ajv, _schema = schema }: { payload: { ontologyIRI: string, ontologyShortName: string }, _ajv: typeof ajv, _schema: typeof schema }) {
 
-  const data: any = opts.payload;
+  const data: any = payload;
 
-  const ajv = new Ajv({ allErrors: true, verbose: true });
   const valid = ajv.validate(schema, data);
   if (!valid) {
     console.log(ajv.errors);
     throw new Error('Payload schema error');
   }
 
-  const ontology: string = opts.payload.ontologyShortName;
-  const iri: string = opts.payload.ontologyIRI;
+  const ontology: string = payload.ontologyShortName;
+  const iri: string = payload.ontologyIRI;
   const doubleEncodedIRI = encodeURIComponent(encodeURIComponent(iri));
 
   const url = `http://www.ebi.ac.uk/ols/api/ontologies/${ontology}/terms/${doubleEncodedIRI}`;
@@ -44,5 +44,4 @@ export default async function getSynonyms(opts: { payload: { ontologyIRI: string
   };
 
   return result;
-
 }
