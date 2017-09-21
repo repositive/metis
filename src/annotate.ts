@@ -1,7 +1,6 @@
 import * as _request from 'request-promise';
 import * as Ajv from 'ajv';
 import * as fs from 'fs';
-import * as R from 'ramda';
 
 //-----------------------
 
@@ -63,7 +62,7 @@ export default async function annotate({ payload, _ajv = ajv, _schema = schema }
       throw new Error('_request error: ' + err);
     });
 
-  // if there is no match, returns original term
+  // if there is no match, returns [undefined]
   // if there are multiple matches, returns all.
 
   if (json.length > 0 && json[0] !== undefined) {
