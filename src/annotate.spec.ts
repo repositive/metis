@@ -15,7 +15,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'random exon sequencing',
       iri: 'http://www.ebi.ac.uk/efo/EFO_0003746',
-      confidence: { 'LOW': 0, 'MEDIUM': 0, 'GOOD': 1, 'HIGH': 0 },
+      confidence: 'GOOD',
       source: 'http://www.ebi.ac.uk/efo/efo.owl',
       short_name: 'efo'
     }];
@@ -58,7 +58,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/ABCDE_166',
-      confidence: { 'LOW': 0, 'MEDIUM': 0, 'GOOD': 0, 'HIGH': 1 },
+      confidence: 'HIGH',
       source: 'https://www.test',
       short_name: 'abcde'
     }];
@@ -93,7 +93,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/topic_166',
-      confidence: { 'LOW': 0, 'MEDIUM': 0, 'GOOD': 0, 'HIGH': 1 },
+      confidence: 'HIGH',
       source: 'https://www.test',
       short_name: 'edam'
     }];
@@ -128,7 +128,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/Orphanet_166',
-      confidence: { 'LOW': 0, 'MEDIUM': 0, 'GOOD': 0, 'HIGH': 1 },
+      confidence: 'HIGH',
       source: 'https://www.test',
       short_name: 'ordo'
     }];
