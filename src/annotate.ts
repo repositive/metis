@@ -7,18 +7,7 @@ import * as fs from 'fs';
 const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
 const ajv = new Ajv({ allErrors: true, verbose: true });
 
-function confidenceScoreF(string: string) {
-  const obj = {
-    'LOW': 0,
-    'MEDIUM': 0,
-    'GOOD': 0,
-    'HIGH': 0
-  };
-  obj[string] = 1;
-  return obj;
-}
-
-export default async function annotate({ payload, _ajv = ajv, _schema = schema }: { payload: { field: string, term: string }, _ajv: typeof ajv, _schema: typeof schema }) {
+export default async function annotate({ payload, _ajv = ajv, _schema = schema }: { payload: { field: string, term: string }, _ajv: typeof ajv, _schema: typeof schema }): Promise<any> {
 
   const data: any = payload;
   const { field, term } = payload;
@@ -62,7 +51,7 @@ export default async function annotate({ payload, _ajv = ajv, _schema = schema }
       throw new Error('_request error: ' + err);
     });
 
-  // if there is no match, returns [undefined]
+  // if there is no match, the request returns [undefined]
   // if there are multiple matches, returns all.
 
   if (json.length > 0 && json[0] !== undefined) {
@@ -74,28 +63,18 @@ export default async function annotate({ payload, _ajv = ajv, _schema = schema }
       if (['format', 'operation', 'topic'].indexOf(short_name) > -1) short_name = 'edam';
       if (short_name === 'orphanet') short_name = 'ordo';
 
-      // const confidenceScoreF = R.cond([
-      //   [R.equals('HIGH'), R.always(1)],
-      //   [R.equals('GOOD'), R.always(0.75)],
-      //   [R.equals('MEDIUM'), R.always(0.5)],
-      //   [R.equals('LOW'), R.always(0.25)]
-      // ]);
-
       return {
         term: x.annotatedProperty.propertyValue.toLowerCase(),
         iri: x._links.olslinks[0].semanticTag,
-        confidence: confidenceScoreF(x.confidence),
+        confidence: x.confidence,
 
         //  also storing which ontology it comes from
         source: x.derivedFrom.provenance.source.uri,
         short_name // shortname from IRI
       };
-
     });
 
   } else {
     return; // if there is no match, returns undefined
   }
-
 }
-
