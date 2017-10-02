@@ -1,11 +1,20 @@
 import * as _request from 'request-promise';
 import * as Ajv from 'ajv';
 import * as fs from 'fs';
+import * as R from 'ramda';
 
 //-----------------------
 
 const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
 const ajv = new Ajv({ allErrors: true, verbose: true });
+
+const confidenceScoreF = (text: string) => R.cond([
+  [R.equals('LOW'), R.always(0.2)],
+  [R.equals('MEDIUM'), R.always(0.4)],
+  [R.equals('GOOD'), R.always(0.6)],
+  [R.equals('HIGH'), R.always(0.8)],
+  [R.T, R.always(1)]
+])(text);
 
 export default async function annotate({ payload, _ajv = ajv, _schema = schema }: { payload: { field: string, term: string }, _ajv: typeof ajv, _schema: typeof schema }): Promise<any> {
 
@@ -66,7 +75,7 @@ export default async function annotate({ payload, _ajv = ajv, _schema = schema }
       return {
         term: x.annotatedProperty.propertyValue.toLowerCase(),
         iri: x._links.olslinks[0].semanticTag,
-        confidence: x.confidence,
+        confidence: confidenceScoreF(x.confidence),
 
         //  also storing which ontology it comes from
         source: x.derivedFrom.provenance.source.uri,

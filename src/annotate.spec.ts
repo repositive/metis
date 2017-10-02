@@ -15,7 +15,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'random exon sequencing',
       iri: 'http://www.ebi.ac.uk/efo/EFO_0003746',
-      confidence: 'GOOD',
+      confidence: 0.6,
       source: 'http://www.ebi.ac.uk/efo/efo.owl',
       short_name: 'efo'
     }];
@@ -58,7 +58,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/ABCDE_166',
-      confidence: 'HIGH',
+      confidence: 0.8,
       source: 'https://www.test',
       short_name: 'abcde'
     }];
@@ -67,7 +67,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       'annotatedProperty': { 'propertyValue': 'abc disease' },
       '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/ABCDE_166' }] },
       'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
-      'confidence': 'HIGH'
+      'confidence': 0.8
     };
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -93,7 +93,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/topic_166',
-      confidence: 'HIGH',
+      confidence: 0.8,
       source: 'https://www.test',
       short_name: 'edam'
     }];
@@ -102,7 +102,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       'annotatedProperty': { 'propertyValue': 'abc disease' },
       '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/topic_166' }] },
       'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
-      'confidence': 'HIGH'
+      'confidence': 0.8
     };
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -128,7 +128,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const annotateResult = [{
       term: 'abc disease',
       iri: 'http://www.test.net/abc/Orphanet_166',
-      confidence: 'HIGH',
+      confidence: 0.8,
       source: 'https://www.test',
       short_name: 'ordo'
     }];
@@ -137,7 +137,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       'annotatedProperty': { 'propertyValue': 'abc disease' },
       '_links': { 'olslinks': [{ 'semanticTag': 'http://www.test.net/abc/Orphanet_166' }] },
       'derivedFrom': { 'provenance': { 'source': { 'uri': 'https://www.test' } } },
-      'confidence': 'HIGH'
+      'confidence': 0.8
     };
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
