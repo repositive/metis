@@ -54,7 +54,7 @@ export default async function annotate({ payload, _ajv = ajv, _schema = schema }
   // if there is no match, the request returns [undefined]
   // if there are multiple matches, returns all.
 
-  if (json.length > 0 && json[0] !== undefined) {
+  if (json.length > 0 && typeof json[0] !== 'undefined') {
     return json.map((x: any) => {
       const uriSplit = x._links.olslinks[0].semanticTag.split('/');
 
