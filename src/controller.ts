@@ -30,17 +30,12 @@ export async function ingestion({
     throw new Error('Payload schema error');
   }
 
-  let result = await _selectFromDb({ _postgres, _term: payload.term })
-    .catch((e: any) => console.error(e));
+  let result = await _selectFromDb({ _postgres, _term: payload.term });
 
   // if result undefined (ie. no rows found)
   if (!result) {
-    const stored = await _getAnnotation({ payload, _postgres })
-      .catch((e: any) => console.error(e.stack));
-
-    result = await _selectFromDb({ _postgres, _term: payload.term })
-      .catch((e: any) => console.error(e.stack));
-
+    const stored = await _getAnnotation({ payload, _postgres });
+    result = await _selectFromDb({ _postgres, _term: payload.term });
   }
   return result;
 }
@@ -71,8 +66,7 @@ export async function selectFromDb({
   };
 
   const result = await _postgres.query(query)
-    .then(data => data.rows[0])
-    .catch((e: any) => console.error(e.stack));
+    .then(data => data.rows[0]);
 
   return result;
 }
@@ -91,8 +85,7 @@ export async function getAnnotation({
 
   // get ontology term from zooma
   const standardised = await _annotate({ payload })
-    .then(data => data[0])
-    .catch((e: any) => console.error(e.stack));
+    .then(data => data[0]);
 
   const insertOntologyTerm = {
     text: 'INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * ',
@@ -101,16 +94,14 @@ export async function getAnnotation({
 
   // insert standardised terms into table, return the row id to link to original term
   const ontology_uid = await _postgres.query(insertOntologyTerm)
-    .then((data: any) => data.rows[0].id)
-    .catch((e: any) => console.error(e.stack));
+    .then((data: any) => data.rows[0].id);
 
   const createQuery = {
     text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
     values: [payload.term, ontology_uid, standardised.confidence]
   };
 
-  await _postgres.query(createQuery)
-    .catch((e: any) => console.error(e.stack));
+  await _postgres.query(createQuery);
 }
 
 // --------------------------
@@ -137,8 +128,7 @@ export async function search({
     throw new Error('Payload schema error');
   }
 
-  return await _selectFromDb({ _postgres, _term: payload.term })
-    .catch((e: any) => console.error(e.stack));
+  return await _selectFromDb({ _postgres, _term: payload.term });
 }
 
 // --------------------------
