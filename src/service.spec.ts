@@ -47,9 +47,11 @@ test('Testing basic service', (t: Test) => {
       });
 
     addCall = _iris.register.getCall(1);
-    t.equal(addCall.args[0].pattern, 'action.annotate', 'The service exposes an annotate handle');
-  }
+    t.equal(addCall.args[0].pattern, 'action.annotate.ingestion', 'The service exposes an ingestion handle');
+    addCall = _iris.register.getCall(2);
+    t.equal(addCall.args[0].pattern, 'action.annotate.search', 'The service exposes a search handle');
 
+  }
   _test()
     .then(() => t.end())
     .catch(console.error);
