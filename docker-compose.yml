@@ -8,17 +8,14 @@ services:
       - .:/opt
     environment:
       TERM: dumb
-      DB_URI: postgres://repositive:repositive@postgres:5432/metis
-    depends_on:
-      - postgres
+      DB_URI: postgres://repositive:repositive@localhost:5432/metis
     networks:
       - service
       - rabbit
-      - db
+      - postgres
 
 networks:
   service:
-  db:
   postgres:
     external:
       name: postgres

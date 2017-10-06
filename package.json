@@ -9,9 +9,9 @@
   ],
   "scripts": {
     "precommit": "npm run lint",
+    "setup": "npm i && tsc --outDir dist",
     "start": "node .",
-    "startDev": "nodemon --watch src/main --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && node .'",
-    "testDev": "nodemon --watch src/ --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec'",
+    "startDev": "nodemon --watch src/ --watch package.json -e ts,json -q -x 'rm -fr dist && echo \"\\n============\\nCOMPILING...\\n============\\n\\n\" && tsc --outDir dist || return 0 && node .'",
     "make": "rm -fr dist && tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "test": "nyc --reporter lcov tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec",
