@@ -2,5 +2,10 @@
   "iris": {
     "uri": "amqp://guest:guest@rabbit",
     "namespace": "metis"
-  }
+  },
+  "db": {
+    "uri": "postgres://repositive:repositive@localhost:5432/metis",
+    "logs": "false"
+  },
+  "environment": "core"
 }
