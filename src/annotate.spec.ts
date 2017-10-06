@@ -160,7 +160,7 @@ test('Testing Zooma annotate service', (t: Test) => {
     const field = 'tissue';
     const term = 'viiat';
 
-    const annotateResult = undefined;
+    const annotateResult: any[] = [];
     const requestResponse = undefined;
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -182,7 +182,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     st.ok(mockedReq.called, 'It calls request');
     st.equal(mockedReq.callCount, 1, 'It calls request once');
-    st.assert(typeof result === 'undefined', 'Returns undefined');
+    st.assert(Array.isArray(result) && result.length === 0, 'Returns an empty array');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
     st.end();
   });
@@ -218,7 +218,7 @@ test('Testing Zooma annotate service', (t: Test) => {
 
     const field = 'tissue';
     const term = 'none';
-    const annotateResult = undefined;
+    const annotateResult: any[] = [];
     const requestResponse = {};
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
@@ -240,7 +240,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       });
 
     st.ok(mockedReq.notCalled, 'It doesn\'t call request function');
-    st.assert(typeof result === 'undefined', 'Returns undefined');
+    st.assert(Array.isArray(result) && result.length === 0, 'Returns an empty array');
     st.deepEquals(result, annotateResult, 'The final result is equal to the expected result');
     st.end();
   });
