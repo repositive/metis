@@ -5,7 +5,6 @@ import * as R from 'ramda';
 
 //-----------------------
 
-
 const confidenceScoreF = (text: string) => R.cond([
   [R.equals('LOW'), R.always(0.2)],
   [R.equals('MEDIUM'), R.always(0.4)],
