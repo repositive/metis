@@ -24,9 +24,9 @@ export async function ingestion({
     _schema?: typeof ingestionSchema
   }) {
 
-  const valid = ajv.validate(ingestionSchema, payload);
+  const valid = _ajv.validate(_schema, payload);
   if (!valid) {
-    console.log(ajv.errors);
+    console.log(_ajv.errors);
     throw new Error('Payload schema error');
   }
 
@@ -131,9 +131,9 @@ export async function search({
     _schema?: typeof searchSchema
   }) {
 
-  const valid = ajv.validate(searchSchema, payload);
+  const valid = _ajv.validate(_schema, payload);
   if (!valid) {
-    console.log(ajv.errors);
+    console.log(_ajv.errors);
     throw new Error('Payload schema error');
   }
 
