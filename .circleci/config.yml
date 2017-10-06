@@ -7,7 +7,7 @@ jobs:
   test:
     <<: *defaults
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:8.5
     steps:
       - checkout
       # - run:
@@ -32,14 +32,15 @@ jobs:
           name: lint
           command: |
             npm run lint
-#      - run:
-#          name: test
-#          command: |
-#            npm test
+      - run:
+          name: test
+          command: |
+            npm test
+      - run:
+          name: coverage
+          command: |
+            npm run coverage
 
-#      - run:
-#          name: code-coverage
-#          command: './node_modules/.bin/nyc report --reporter=text-lcov'
 #      - store_artifacts:
 #          path: test-results.xml
 #          prefix: tests
@@ -80,10 +81,10 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-staging.repositive.io/kubeconfig-staging
-              TAG=$CIRCLE_SHA1 envsubst '${TAG}' < .circleci/k8s.staging.yml > deploy-staging.yml
+              TAG=$(git describe --abbrev=0).$(git rev-parse --short HEAD) envsubst '${TAG}' < .circleci/k8s.staging.yml > deploy-staging.yml
               if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
-                curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-staging.repositive.io/kubeconfig-production
-                TAG=$CIRCLE_TAG envsubst '${TAG}' < .circleci/k8s.production.yml > deploy-production.yml
+                curl -O -u $DEPLOYMENT_USER:$DEPLOYMENT_PASS https://deployment-server-production.repositive.io/kubeconfig-production
+                TAG=$(git describe --abbrev=0).$(git rev-parse --short HEAD) envsubst '${TAG}' < .circleci/k8s.production.yml > deploy-production.yml
               fi
             fi
 
@@ -103,7 +104,7 @@ jobs:
             - deploy-staging.yml
             - deploy-production.yml
 
-  release:
+  build_container:
     <<: *defaults
     docker:
       - image: docker:17.05.0-ce-git
@@ -153,19 +154,73 @@ jobs:
           name: Login in the docker registry
           command: |
             docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS registry.repositive.io:5000
+
+      - run:
+          name: Push application Docker image
+          command: |
+            docker tag app "registry.repositive.io:5000/metis:latest"
+            docker push "registry.repositive.io:5000/metis:latest"
+            docker tag app "registry.repositive.io:5000/metis:$(git describe --abbrev=0).$(git rev-parse --short HEAD)"
+            docker push "registry.repositive.io:5000/metis:$(git describe --abbrev=0).$(git rev-parse --short HEAD)"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - kubectl
+            - kubeconfig-staging
+            - kubeconfig-production
+            - deploy-staging.yml
+            - deploy-production.yml
+
+  release_staging:
+    <<: *defaults
+    docker:
+      - image: istareldritch/curl-envsubst
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Setup workspace
+          command: |
+            mv workspace/kubectl kubectl
+            mv workspace/kubeconfig-staging kubeconfig-staging 2> /dev/null || echo "No kubectl config for staging"
+            mv workspace/deploy-staging.yml deploy-staging.yml 2> /dev/null || echo "No deployment config for staging"
+            mv workspace/kubeconfig-production kubeconfig-production 2> /dev/null || echo "No kubectl config for production"
+            mv workspace/deploy-production.yml deploy-production.yml 2> /dev/null || echo "No deployment config for production"
+
       - deploy:
           name: Push application Docker image
           command: |
             if [ -f ./deploy-staging.yml ]; then
-              docker tag app "registry.repositive.io:5000/metis:${CIRCLE_SHA1}"
-              docker push "registry.repositive.io:5000/metis:${CIRCLE_SHA1}"
               KUBECONFIG=kubeconfig-staging ./kubectl apply -f deploy-staging.yml
-              if [ -f ./deploy-production.yml ]; then
-                docker tag app "registry.repositive.io:5000/metis:${CIRCLE_TAG}"
-                docker push "registry.repositive.io:5000/metis:${CIRCLE_TAG}"
-                KUBECONFIG=kubeconfig-production ./kubectl apply -f deploy-production.yml
-              fi
+              curl "https://slack.com/api/chat.postMessage?token=$SLACK_TOKEN&channel=dev&as_user=Liz&text=:rocket:%20*New%20Staging%20Deployment:*%20Metis%20$TAG$(git describe --abbrev=0).$(git rev-parse --short HEAD)"
             fi
+
+  release_production:
+    <<: *defaults
+    docker:
+      - image: istareldritch/curl-envsubst
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Setup workspace
+          command: |
+            mv workspace/kubectl kubectl
+            mv workspace/kubeconfig-staging kubeconfig-staging 2> /dev/null || echo "No kubectl config for staging"
+            mv workspace/deploy-staging.yml deploy-staging.yml 2> /dev/null || echo "No deployment config for staging"
+            mv workspace/kubeconfig-production kubeconfig-production 2> /dev/null || echo "No kubectl config for production"
+            mv workspace/deploy-production.yml deploy-production.yml 2> /dev/null || echo "No deployment config for production"
+
+      - deploy:
+          name: Push application Docker image
+          command: |
+            if [ -f ./deploy-production.yml ]; then
+                KUBECONFIG=kubeconfig-production ./kubectl apply -f deploy-production.yml
+                curl "https://slack.com/api/chat.postMessage?token=$SLACK_TOKEN&channel=dev&as_user=Liz&text=:rocket:%20*New%20Production%20Deployment:*%20Metis%20$TAG$(git describe --abbrev=0).$(git rev-parse --short HEAD)"
+            fi
+
 
 workflows:
   version: 2
@@ -178,10 +233,21 @@ workflows:
           filters:
             branches:
               only: master
-      - release:
+      - build_container:
           requires:
-            - test
             - setup_release
+          filters:
+            branches:
+              only: master
+      - release_staging:
+          requires:
+            - build_container
+          filters:
+            branches:
+              only: master
+      - release_production:
+          requires:
+            - build_container
           filters:
             branches:
               only: master
