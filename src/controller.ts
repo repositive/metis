@@ -55,7 +55,18 @@ export async function selectFromDb({
     _term: string
   }) {
   const query = {
-    text: 'SELECT ontology_uid, confidence FROM original_terms WHERE original = $1',
+    text:
+    `SELECT
+    original_terms.ontology_uid,
+    original_terms.confidence,
+    ontology_terms.ontology_uri,
+    ontology_terms.ontology_term,
+    ontology_terms.source_uri,
+    ontology_terms.short_name
+    FROM original_terms
+    INNER JOIN ontology_terms
+    ON ontology_terms.id = original_terms.ontology_uid
+    WHERE original = $1`,
     values: [_term]
   };
 
@@ -78,32 +89,24 @@ export async function getAnnotation({
     _annotate?: typeof annotate
   }) {
 
+  // get ontology term from zooma
   const standardised = await _annotate({ payload })
+    .then(data => data[0])
     .catch((e: any) => console.error(e.stack));
 
-  //
   const insertOntologyTerm = {
     text: 'INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * ',
-    values: [standardised[0].iri, standardised[0].term, standardised[0].source, standardised[0].short_name]
+    values: [standardised.iri, standardised.term, standardised.source, standardised.short_name]
   };
 
-  await _postgres.query(insertOntologyTerm)
+  // insert standardised terms into table, return the row id to link to original term
+  const ontology_uid = await _postgres.query(insertOntologyTerm)
+    .then((data: any) => data.rows[0].id)
     .catch((e: any) => console.error(e.stack));
 
-  // get ontology_uid
-  const getOntologyTermUID = {
-    text: 'SELECT id FROM ontology_terms WHERE ontology_term = $1',
-    values: [standardised[0].term]
-  };
-
-  const ontology_uid = await _postgres.query(getOntologyTermUID)
-    .then((data: any) => data) // required
-    .catch((e: any) => console.error(e.stack));
-
-  //
   const createQuery = {
     text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
-    values: [payload.term, ontology_uid.rows[0].id, standardised[0].confidence]
+    values: [payload.term, ontology_uid, standardised.confidence]
   };
 
   await _postgres.query(createQuery)
@@ -121,7 +124,7 @@ export async function search({
   _ajv = ajv,
   _schema = searchSchema
 }: {
-    payload: { field: string, term: string },
+    payload: { term: string },
     _postgres: Pool
     _selectFromDb?: typeof selectFromDb,
     _ajv?: typeof ajv,
