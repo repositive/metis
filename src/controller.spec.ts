@@ -233,7 +233,4 @@ test('Testing controller', (t: Test) => {
     st.end();
 
   });
-
-
-
 });
