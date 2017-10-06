@@ -17,21 +17,21 @@ const confidenceScoreF = (text: string) => R.cond([
 ])(text);
 
 export default async function annotate({
-   _payload,
+   payload,
   _ajv = ajv,
   _schema = schema,
   _request = request,
   _confidenceScoreF = confidenceScoreF
   }: {
-    _payload: { field: string, term: string },
+    payload: { field: string, term: string },
     _ajv?: typeof ajv,
     _schema?: typeof schema,
     _request?: typeof request,
     _confidenceScoreF?: typeof confidenceScoreF
   }): Promise<any> {
 
-  const data: any = _payload;
-  const { field, term } = _payload;
+  const data: any = payload;
+  const { field, term } = payload;
 
   const valid = ajv.validate(schema, data);
   if (!valid) {
