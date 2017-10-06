@@ -20,9 +20,11 @@ export default async function init({
   }): Promise<void> {
 
   const irisOpts = _config.get<any>('iris');
+  const iris = await _irisSetup(irisOpts);
+
   const pgOpts = _config.get<any>('db');
   const postgres = new _Pool(pgOpts);
-  const iris = await _irisSetup(irisOpts);
+  postgres.on('error', (err: Error) => console.error(err.stack));
 
   iris.register({
     pattern: 'status.metis',
