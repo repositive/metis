@@ -7,12 +7,21 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 ### Update Datasets with Ontology Terms
 
-Metis uses Iris to register a `action.annotate` pattern.
+Metis uses Iris to register a `action.annotate.ingestion` pattern.
 
-The payload must be in the [format](schemas/annotate-is-valid.json):
+The ingestion payload must be in the [format](schemas/ingestion-schema.json):
 ```ts
 type Payload = {
   field: string;
+  term: string;
+}
+```
+
+Metis also uses Iris to register a `action.annotate.search` pattern.
+
+The search payload must be in the [format](schemas/search-schema.json):
+```ts
+type Payload = {
   term: string;
 }
 ```
@@ -32,7 +41,18 @@ type Response = [{
 
 ## About Docker Compose
 
-The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit:
+The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit, and to the postgres database:
+
+**Create the postgres network**
+```bash
+$ docker network create postgres
+```
+
+**Run a postgres process**
+```bash
+$ docker run --name=postgres --network=postgres -p 5432:5432 -d registry.repositive.io:5000/postgres-data
+```
+
 
 **Create the rabbit network**
 ```bash
