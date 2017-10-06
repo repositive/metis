@@ -4,32 +4,33 @@ import annotate from './annotate';
 // --------------------------
 // ingestion:
 export async function ingestion({
-  _payload,
+  payload,
   _postgres,
   _selectFromDb = selectFromDb,
   _getAnnotation = getAnnotation
  }: {
-    _payload: { field: string, term: string },
+    payload: { field: string, term: string },
     _postgres: Pool
     _selectFromDb?: typeof selectFromDb,
     _getAnnotation?: typeof getAnnotation
   }) {
 
-  let result = await _selectFromDb({ _postgres, _term: _payload.term })
-    .catch((e: any) => console.error(e.stack));
+  let result = await _selectFromDb({ _postgres, _term: payload.term })
+    .catch((e: any) => console.error(e));
 
-  // // if result undefined
+  // if result undefined (ie. no rows found)
   if (!result) {
-    const stored = await _getAnnotation({ _payload, _postgres });
+    const stored = await _getAnnotation({ payload, _postgres })
+      .catch((e: any) => console.error(e.stack));
 
-    result = await _selectFromDb({ _postgres, _term: _payload.term })
+    result = await _selectFromDb({ _postgres, _term: payload.term })
       .catch((e: any) => console.error(e.stack));
 
   }
   return result;
 }
 
-// // --------------------------
+// --------------------------
 
 export async function selectFromDb({
   _postgres,
@@ -38,17 +39,14 @@ export async function selectFromDb({
     _postgres: Pool,
     _term: string
   }) {
-  // // query = term
   const query = {
     text: 'SELECT ontology_uid, confidence FROM original_terms WHERE original = $1',
     values: [_term]
   };
 
-  // you can also use async/await
   const result = await _postgres.query(query)
-    .then((data: any) => console.log(data))
+    .then(data => data.rows[0])
     .catch((e: any) => console.error(e.stack));
-  // await pool.end();
 
   return result;
 }
@@ -56,49 +54,61 @@ export async function selectFromDb({
 // ------------------------
 
 export async function getAnnotation({
-  _payload,
+  payload,
   _postgres,
   _annotate = annotate
   }: {
-    _payload: { field: string, term: string },
+    payload: { field: string, term: string },
     _postgres: Pool
     _annotate?: typeof annotate
   }) {
 
-  const standardised = await _annotate({ _payload })
-    .then((data: any) => {
-      console.log(data);
-      return data;
-    })
+  const standardised = await _annotate({ payload })
     .catch((e: any) => console.error(e.stack));
 
-  //  createQuery = standardised
-  const createQuery = {
-    text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
-    values: [_payload.term, standardised.term, standardised.confidence]
+  // 
+  const insertOntologyTerm = {
+    text: 'INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * ',
+    values: [standardised[0].iri, standardised[0].term, standardised[0].source, standardised[0].short_name]
   };
 
-  // you can also use async/await
-  const stored = await _postgres.query(createQuery)
-    .then((data: any) => console.log(data))
+  await _postgres.query(insertOntologyTerm)
     .catch((e: any) => console.error(e.stack));
-  // await pool.end();
+
+  // get ontology_uid
+  const getOntologyTermUID = {
+    text: 'SELECT id FROM ontology_terms WHERE ontology_term = $1',
+    values: [standardised[0].term]
+  };
+
+  const ontology_uid = await _postgres.query(getOntologyTermUID)
+    .then((data: any) => data) // required
+    .catch((e: any) => console.error(e.stack));
+
+  //  
+  const createQuery = {
+    text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
+    values: [payload.term, ontology_uid.rows[0].id, standardised[0].confidence]
+  };
+
+  await _postgres.query(createQuery)
+    .catch((e: any) => console.error(e.stack));
 }
 
-// // --------------------------
-// // search:
+// --------------------------
+// search:
 export async function search({
-  _payload,
+  payload,
   _postgres,
   _selectFromDb = selectFromDb
 }: {
-    _payload: { field: string, term: string },
+    payload: { field: string, term: string },
     _postgres: Pool
     _selectFromDb?: typeof selectFromDb
   }) {
-  return await _selectFromDb({ _postgres, _term: _payload.term })
+  return await _selectFromDb({ _postgres, _term: payload.term })
     .catch((e: any) => console.error(e.stack));
 }
 
-// // --------------------------
+// --------------------------
 

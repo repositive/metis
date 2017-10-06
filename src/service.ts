@@ -20,7 +20,7 @@ export default async function init({
   }): Promise<void> {
 
   const irisOpts = _config.get<any>('iris');
-  const pgOpts = _config.get<any>('postgres');
+  const pgOpts = _config.get<any>('db');
   const postgres = new _Pool(pgOpts);
   const iris = await _irisSetup(irisOpts);
 
