@@ -6,9 +6,10 @@ import * as fs from 'fs';
 import * as Ajv from 'ajv';
 
 import { ingestion, selectFromDb, getAnnotation, search } from './controller';
+
 //-------------------------------
 
-test.only('Testing controller', (t: Test) => {
+test('Testing controller', (t: Test) => {
   t.test('Test ingestion', async function (st: Test) {
 
     const _postgres: any = {};
