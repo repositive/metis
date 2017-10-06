@@ -204,4 +204,36 @@ test('Testing controller', (t: Test) => {
     st.end();
   });
 
+  t.test('If the search schema is not valid, throws an error', async function (st: Test) {
+
+    const _postgres: any = {};
+    const payload = { term: 'test', field: 'other' };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, 'validate').returns(false);
+    const _schema: any = JSON.parse(fs.readFileSync('./schemas/search-schema.json', 'utf8'));
+    const mockResult = {
+      'ontology_uid': 26,
+      'confidence': 0.6,
+      'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
+      'ontology_term': 'test',
+      'source_uri': 'https://www.test.ac.uk/test',
+      'short_name': 'test'
+    };
+    const _selectFromDb = stub().returns(Promise.resolve(mockResult));
+    const _getAnnotation = stub().returns(Promise.resolve());
+
+    const result = await search({ payload, _postgres, _ajv, _schema, _selectFromDb })
+      .catch((err) => {
+        st.ok(err, 'Function should throw error');
+      });
+
+    st.assert((_ajv.validate as any).calledOnce, 'It calls validate once');
+    st.deepEquals((_ajv.validate as any).getCall(0).args, [_schema, payload], 'It calls validate with correct args');
+    st.assert(_selectFromDb.notCalled, 'SelectFromDb is not called');
+    st.end();
+
+  });
+
+
+
 });
