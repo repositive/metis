@@ -51,7 +51,7 @@ export default async function annotate({
   const excludedTerms = ['n/a', 'na', 'none', 'not available', 'not specified', 'other', 'unavailable', 'unknown', 'unspecified'];
 
   if (!term || excludedTerms.indexOf(term.toLowerCase()) > -1) {
-    return; // if term is excluded return undefined
+    return []; // if term is excluded return undefined
   }
 
   const options = {
@@ -96,6 +96,6 @@ export default async function annotate({
     });
 
   } else {
-    return; // if there is no match, returns undefined
+    return []; // if there is no match, returns an empty array
   }
 }
