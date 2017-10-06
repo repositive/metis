@@ -1,6 +1,6 @@
 {
   "db": {
-    "uri": "DB_URI",
+    "connectionString": "DB_URI",
     "logs": "DB_LOGS_ENABLED"
   },
   "iris": {
