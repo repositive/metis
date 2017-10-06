@@ -5,8 +5,6 @@ import * as R from 'ramda';
 
 //-----------------------
 
-const schema: any = JSON.parse(fs.readFileSync('./schemas/annotate-is-valid.json', 'utf8'));
-const ajv = new Ajv({ allErrors: true, verbose: true });
 
 const confidenceScoreF = (text: string) => R.cond([
   [R.equals('LOW'), R.always(0.2)],
@@ -18,26 +16,15 @@ const confidenceScoreF = (text: string) => R.cond([
 
 export default async function annotate({
    payload,
-  _ajv = ajv,
-  _schema = schema,
   _request = request,
   _confidenceScoreF = confidenceScoreF
   }: {
     payload: { field: string, term: string },
-    _ajv?: typeof ajv,
-    _schema?: typeof schema,
     _request?: typeof request,
     _confidenceScoreF?: typeof confidenceScoreF
   }): Promise<any> {
 
-  const data: any = payload;
   const { field, term } = payload;
-
-  const valid = ajv.validate(schema, data);
-  if (!valid) {
-    console.log(ajv.errors);
-    throw new Error('Payload schema error');
-  }
 
   const ontologyDict = {
     'assay': 'efo,edam',
