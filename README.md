@@ -10,8 +10,23 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 Metis uses Iris to register a `action.annotate` pattern.
 
 The payload must be in the [format](schemas/annotate-is-valid.json):
+```ts
+type Payload = {
+  field: string;
+  term: string;
+}
 ```
-{ field: string, term: string }
+
+The response is always an array of matched terms:
+
+```ts
+type Response = [{
+  term: string; // The standard term matched
+  iri: string; // The Ontology Term IRI
+  confidence: number; // How likely it is that the match is correct
+  source: string; // The matched ontoloty URL
+  short_name: string; // The matched ontology name identifier.
+}]
 ```
 
 
