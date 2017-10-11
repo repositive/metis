@@ -39,6 +39,10 @@ type Response = [{
 ```
 
 
+## Setting up the database
+
+Metis uses postgres to store a lookup table and accelerate the process of returning existing results from previous queries. To setup the database create a new  database called `metis` and execute [`setup.sql`](setup.sql).
+
 ## About Docker Compose
 
 The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit, and to the postgres database:
