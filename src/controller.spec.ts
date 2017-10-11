@@ -10,21 +10,21 @@ import { ingestion, selectFromDb, getAnnotation, search } from './controller';
 //-------------------------------
 
 test('Testing controller', (t: Test) => {
-  t.test('Test ingestion', async function (st: Test) {
+  t.test('Test ingestion when term is in database', async function (st: Test) {
 
     const _postgres: any = {};
     const payload = { field: 'abc', term: 'test' };
     const _ajv: any = new Ajv();
     const validateStub = stub(_ajv, 'validate').returns(true);
     const _schema = stub();
-    const mockResult = {
+    const mockResult = [{
       'ontology_uid': 26,
       'confidence': 0.6,
       'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
       'ontology_term': 'test',
       'source_uri': 'https://www.test.ac.uk/test',
       'short_name': 'test'
-    };
+    }];
     const _selectFromDb = stub().returns(Promise.resolve(mockResult));
     const _getAnnotation = stub().returns(Promise.resolve());
 
@@ -72,23 +72,23 @@ test('Testing controller', (t: Test) => {
 
   });
 
-  t.test('Test ingestion', async function (st: Test) {
+  t.test('Test ingestion when term is not in database', async function (st: Test) {
 
     const _postgres: any = {};
     const payload = { field: 'abc', term: 'test' };
     const _ajv: any = new Ajv();
     const validateStub = stub(_ajv, 'validate').returns(true);
     const _schema = stub();
-    const mockResult = {
+    const mockResult = [{
       'ontology_uid': 26,
       'confidence': 0.6,
       'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
       'ontology_term': 'test',
       'source_uri': 'https://www.test.ac.uk/test',
       'short_name': 'test'
-    };
+    }];
     const _selectFromDb = stub()
-      .onFirstCall().returns(Promise.resolve(undefined))
+      .onFirstCall().returns(Promise.resolve([undefined]))
       .onSecondCall().returns(Promise.resolve(mockResult));
     const _getAnnotation = stub().returns(Promise.resolve());
 
@@ -108,6 +108,7 @@ test('Testing controller', (t: Test) => {
   t.test('Test selectFromDb', async function (st: Test) {
 
     const mockResult = {
+      otherKey: 'other',
       rows: [{
         'ontology_uid': 26,
         'confidence': 0.6,
@@ -118,14 +119,14 @@ test('Testing controller', (t: Test) => {
       }]
     };
 
-    const expectedResult = {
+    const expectedResult = [{
       'ontology_uid': 26,
       'confidence': 0.6,
       'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
       'ontology_term': 'test',
       'source_uri': 'https://www.test.ac.uk/test',
       'short_name': 'test'
-    };
+    }];
 
     const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
     const _term = 'test';
