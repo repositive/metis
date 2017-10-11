@@ -6,9 +6,15 @@ const ajv = new Ajv({ allErrors: true, verbose: true });
 
 // --------------------------
 // ingestion:
-const ingestionSchema: any = JSON.parse(fs.readFileSync('./schemas/ingestion-schema.json', 'utf8'));
+const ingestionSchema: any = JSON.parse(fs.readFileSync('./schemas/get-schema.json', 'utf8'));
 
-export async function ingestion({
+export interface GetOntologyInput {
+  term: string;
+  field?: string;
+  force?: boolean;
+}
+
+export async function get({
   payload,
   _postgres,
   _selectFromDb = selectFromDb,
@@ -16,8 +22,8 @@ export async function ingestion({
   _ajv = ajv,
   _schema = ingestionSchema
  }: {
-    payload: { field: string, term: string },
-    _postgres: Pool
+    payload: GetOntologyInput,
+    _postgres: Pool,
     _selectFromDb?: typeof selectFromDb,
     _getAnnotation?: typeof getAnnotation,
     _ajv?: typeof ajv,
@@ -33,8 +39,9 @@ export async function ingestion({
   let result = await _selectFromDb({ _postgres, _term: payload.term });
 
   // if result undefined (ie. no rows found)
-  if (result[0] === undefined) {
-    const stored = await _getAnnotation({ payload, _postgres });
+  if (result[0] === undefined && payload.field) {
+    const { field, term } = payload;
+    const stored = await _getAnnotation({ payload: { field, term }, _postgres });
     result = await _selectFromDb({ _postgres, _term: payload.term });
   }
   return result;
@@ -107,31 +114,3 @@ export async function getAnnotation({
 }
 
 // --------------------------
-// search:
-const searchSchema: any = JSON.parse(fs.readFileSync('./schemas/search-schema.json', 'utf8'));
-
-export async function search({
-  payload,
-  _postgres,
-  _selectFromDb = selectFromDb,
-  _ajv = ajv,
-  _schema = searchSchema
-}: {
-    payload: { term: string },
-    _postgres: Pool
-    _selectFromDb?: typeof selectFromDb,
-    _ajv?: typeof ajv,
-    _schema?: typeof searchSchema
-  }) {
-
-  const valid = _ajv.validate(_schema, payload);
-  if (!valid) {
-    console.log(_ajv.errors);
-    throw new Error('Payload schema error');
-  }
-
-  return await _selectFromDb({ _postgres, _term: payload.term });
-}
-
-// --------------------------
-

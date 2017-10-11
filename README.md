@@ -7,24 +7,17 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 ### Update Datasets with Ontology Terms
 
-Metis uses Iris to register a `action.annotate.ingestion` pattern.
+Metis uses Iris to register a `action.annotate.get` pattern.
 
 The ingestion payload must be in the [format](schemas/ingestion-schema.json):
 ```ts
 type Payload = {
-  field: string;
   term: string;
+  field?: string;
+  force?: boolean;
 }
 ```
 
-Metis also uses Iris to register a `action.annotate.search` pattern.
-
-The search payload must be in the [format](schemas/search-schema.json):
-```ts
-type Payload = {
-  term: string;
-}
-```
 
 The response is always an array of matched terms:
 

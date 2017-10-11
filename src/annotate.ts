@@ -1,6 +1,5 @@
 import * as request from 'request-promise';
 import * as Ajv from 'ajv';
-import * as fs from 'fs';
 import * as R from 'ramda';
 
 //-----------------------

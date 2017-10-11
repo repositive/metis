@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema",
-  "title": "Valid ingestion payload",
-  "id": "ingestion-schema.json",
+  "title": "Valid payload",
+  "id": "get-schema.json",
   "type": "object",
   "properties": {
     "field": {
@@ -13,6 +13,6 @@
       "description": "The term to be annotated."
     }
   },
-  "required": ["field", "term"],
+  "required": ["term"],
   "additionalProperties": false
 }

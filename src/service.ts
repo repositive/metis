@@ -2,7 +2,7 @@ import irisSetup from '@repositive/iris';
 import { inject } from '@repositive/iris';
 
 import * as config from 'config';
-import { ingestion, search } from './controller';
+import { get } from './controller';
 import { Pool } from 'pg';
 
 const pack = require('../package.json');
@@ -36,15 +36,10 @@ export default async function init({
     }
   });
 
-  const _ingestionHandler = inject({ args: { _postgres: postgres }, func: ingestion });
+  const _getHandler = inject({ args: { _postgres: postgres }, func: get });
   iris.register({
-    pattern: 'action.annotate.ingestion',
-    handler: _ingestionHandler
+    pattern: 'action.annotate.get',
+    handler: _getHandler
   });
 
-  const _searchHandler = inject({ args: { _postgres: postgres }, func: search });
-  iris.register({
-    pattern: 'action.annotate.search',
-    handler: _searchHandler
-  });
 }
