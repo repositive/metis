@@ -67,7 +67,7 @@ export default async function annotate({
 
       // make ontologyShortName equal to ontology accession prefix
       let short_name = uriSplit.slice(-1)[0].split('_')[0].toLowerCase();
-      if (['format', 'operation', 'topic'].indexOf(short_name) > -1) short_name = 'edam';
+      if (['format', 'operation', 'topic', 'data'].indexOf(short_name) > -1) short_name = 'edam';
       if (short_name === 'orphanet') short_name = 'ordo';
 
       return {
