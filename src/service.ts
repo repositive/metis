@@ -24,7 +24,10 @@ export default async function init({
 
   const pgOpts = _config.get<any>('db');
   const postgres = new _Pool(pgOpts);
-  postgres.on('error', (err: Error) => console.error(err.stack));
+  postgres.on('error', (err: Error) => {
+    console.error(err.stack);
+    process.exit(1);
+  });
 
   iris.register({
     pattern: 'status.metis',
