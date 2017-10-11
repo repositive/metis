@@ -22,7 +22,7 @@ export async function ingestion({
     _getAnnotation?: typeof getAnnotation,
     _ajv?: typeof ajv,
     _schema?: typeof ingestionSchema
-  }) {
+  }): Promise<any[]> {
 
   const valid = _ajv.validate(_schema, payload);
   if (!valid) {
@@ -33,7 +33,7 @@ export async function ingestion({
   let result = await _selectFromDb({ _postgres, _term: payload.term });
 
   // if result undefined (ie. no rows found)
-  if (!result) {
+  if (result[0] === undefined) {
     const stored = await _getAnnotation({ payload, _postgres });
     result = await _selectFromDb({ _postgres, _term: payload.term });
   }
@@ -66,7 +66,7 @@ export async function selectFromDb({
   };
 
   const result = await _postgres.query(query)
-    .then(data => data.rows[0]);
+    .then(data => data.rows);
 
   return result;
 }
@@ -87,21 +87,23 @@ export async function getAnnotation({
   const standardised = await _annotate({ payload })
     .then(data => data[0]);
 
-  const insertOntologyTerm = {
-    text: 'INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * ',
-    values: [standardised.iri, standardised.term, standardised.source, standardised.short_name]
-  };
+  if (standardised) {
+    const insertOntologyTerm = {
+      text: 'INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * ',
+      values: [standardised.iri, standardised.term, standardised.source, standardised.short_name]
+    };
 
-  // insert standardised terms into table, return the row id to link to original term
-  const ontology_uid = await _postgres.query(insertOntologyTerm)
-    .then((data: any) => data.rows[0].id);
+    // insert standardised terms into table, return the row id to link to original term
+    const ontology_uid = await _postgres.query(insertOntologyTerm)
+      .then((data: any) => data.rows[0].id);
 
-  const createQuery = {
-    text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
-    values: [payload.term, ontology_uid, standardised.confidence]
-  };
+    const createQuery = {
+      text: 'INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)',
+      values: [payload.term, ontology_uid, standardised.confidence]
+    };
 
-  await _postgres.query(createQuery);
+    await _postgres.query(createQuery);
+  }
 }
 
 // --------------------------
