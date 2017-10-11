@@ -9,7 +9,7 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 
 Metis uses Iris to register a `action.annotate.get` pattern.
 
-The ingestion payload must be in the [format](schemas/ingestion-schema.json):
+The ingestion payload must be in the [format](schemas/get-schema.json):
 ```ts
 type Payload = {
   term: string;
