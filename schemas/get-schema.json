@@ -11,6 +11,10 @@
     "term": {
       "type": "string",
       "description": "The term to be annotated."
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Whether to force request from Zooma ontology service."
     }
   },
   "required": ["term"],

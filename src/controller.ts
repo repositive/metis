@@ -5,8 +5,8 @@ import * as Ajv from 'ajv';
 const ajv = new Ajv({ allErrors: true, verbose: true });
 
 // --------------------------
-// ingestion:
-const ingestionSchema: any = JSON.parse(fs.readFileSync('./schemas/get-schema.json', 'utf8'));
+
+const schema: any = JSON.parse(fs.readFileSync('./schemas/get-schema.json', 'utf8'));
 
 export interface GetOntologyInput {
   term: string;
@@ -20,14 +20,14 @@ export async function get({
   _selectFromDb = selectFromDb,
   _getAnnotation = getAnnotation,
   _ajv = ajv,
-  _schema = ingestionSchema
+  _schema = schema
  }: {
     payload: GetOntologyInput,
     _postgres: Pool,
     _selectFromDb?: typeof selectFromDb,
     _getAnnotation?: typeof getAnnotation,
     _ajv?: typeof ajv,
-    _schema?: typeof ingestionSchema
+    _schema?: typeof schema
   }): Promise<any[]> {
 
   const valid = _ajv.validate(_schema, payload);

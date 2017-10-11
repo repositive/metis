@@ -6,8 +6,7 @@ import * as fs from 'fs';
 //--------------------------
 
 const schemas: any[] = [
-  JSON.parse(fs.readFileSync('./schemas/ingestion-schema.json', 'utf8')),
-  JSON.parse(fs.readFileSync('./schemas/search-schema.json', 'utf8'))
+  JSON.parse(fs.readFileSync('./schemas/get-schema.json', 'utf8'))
 ];
 
 const ajv = new Ajv({ allErrors: true, verbose: true, schemas });
@@ -20,8 +19,8 @@ test('The schemas are valid', (t: Test) => {
   t.end();
 });
 
-test('Term is required for ingestion', (t: Test) => {
-  const schema = ajv.getSchema('ingestion-schema.json');
+test('Term is required for get function', (t: Test) => {
+  const schema = ajv.getSchema('get-schema.json');
   const json = { field: 'abc' };
   const valid = schema(json);
   t.notOk(valid, 'Object without term is not valid payload');
@@ -32,27 +31,3 @@ test('Term is required for ingestion', (t: Test) => {
   t.end();
 });
 
-test('Term is required for search', (t: Test) => {
-  const schema = ajv.getSchema('search-schema.json');
-  const json = {};
-  const valid = schema(json);
-  t.notOk(valid, 'Object without term is not valid payload');
-  t.ok(schema.errors, `There are errors in search-schema.json`);
-  if (schema.errors) {
-    t.equals(schema.errors[0]['message'], 'should have required property \'term\'', 'Correct error message');
-  }
-  t.end();
-});
-
-
-test('Field is required for ingestion', (t: Test) => {
-  const schema = ajv.getSchema('ingestion-schema.json');
-  const json = { term: 'abc' };
-  const valid = schema(json);
-  t.notOk(valid, 'Object without field is not valid payload');
-  t.ok(schema.errors, 'There are errors');
-  if (schema.errors) {
-    t.equals(schema.errors[0]['message'], 'should have required property \'field\'', 'Correct error message');
-  }
-  t.end();
-});

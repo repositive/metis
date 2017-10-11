@@ -5,12 +5,12 @@ import { stub } from 'sinon';
 import * as fs from 'fs';
 import * as Ajv from 'ajv';
 
-import { ingestion, selectFromDb, getAnnotation, search } from './controller';
+import { get, selectFromDb, getAnnotation } from './controller';
 
 //-------------------------------
 
 test('Testing controller', (t: Test) => {
-  t.test('Test ingestion when term is in database', async function (st: Test) {
+  t.test('Test get function when term is in database', async function (st: Test) {
 
     const _postgres: any = {};
     const payload = { field: 'abc', term: 'test' };
@@ -28,7 +28,7 @@ test('Testing controller', (t: Test) => {
     const _selectFromDb = stub().returns(Promise.resolve(mockResult));
     const _getAnnotation = stub().returns(Promise.resolve());
 
-    const result = await ingestion({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
       .catch((err) => {
         st.notOk(err, 'Function should not error');
       });
@@ -36,7 +36,7 @@ test('Testing controller', (t: Test) => {
     st.assert((_ajv.validate as any).called, 'It calls validate once');
     st.assert((_selectFromDb as any).calledOnce, 'It calls _selectFromDb');
     st.equals(_selectFromDb.getCall(0).args[0]._term, 'test', 'SelectFromDb is called with the correct term');
-    st.equals(result, mockResult, 'It returns the expected result');
+    st.deepEquals(result, mockResult, 'It returns the expected result');
     st.end();
 
   });
@@ -47,7 +47,7 @@ test('Testing controller', (t: Test) => {
     const payload = { field: 'abc', term: 'test' };
     const _ajv: any = new Ajv();
     const validateStub = stub(_ajv, 'validate').returns(false);
-    const _schema: any = JSON.parse(fs.readFileSync('./schemas/ingestion-schema.json', 'utf8'));
+    const _schema: any = JSON.parse(fs.readFileSync('./schemas/get-schema.json', 'utf8'));
     const mockResult = {
       'ontology_uid': 26,
       'confidence': 0.6,
@@ -59,20 +59,19 @@ test('Testing controller', (t: Test) => {
     const _selectFromDb = stub().returns(Promise.resolve(mockResult));
     const _getAnnotation = stub().returns(Promise.resolve());
 
-    const result = await ingestion({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
       .catch((err) => {
         st.ok(err, 'Function should throw error');
       });
 
     st.assert((_ajv.validate as any).calledOnce, 'It calls validate once');
     st.deepEquals((_ajv.validate as any).getCall(0).args, [_schema, payload], 'It calls validate with correct args');
-
     st.assert(_selectFromDb.notCalled, 'SelectFromDb is not called');
     st.end();
 
   });
 
-  t.test('Test ingestion when term is not in database', async function (st: Test) {
+  t.test('Test get function when term is not in database', async function (st: Test) {
 
     const _postgres: any = {};
     const payload = { field: 'abc', term: 'test' };
@@ -92,14 +91,14 @@ test('Testing controller', (t: Test) => {
       .onSecondCall().returns(Promise.resolve(mockResult));
     const _getAnnotation = stub().returns(Promise.resolve());
 
-    const result = await ingestion({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
       .catch((err) => {
         st.notOk(err, 'Function should not error');
       });
 
     st.assert(_selectFromDb.calledTwice, 'It calls selectFromDb twice');
     st.equals(_selectFromDb.getCall(0).args[0]._term, 'test', 'selectFromDb is called with the correct term');
-    st.equals(_getAnnotation.getCall(0).args[0].payload, payload, 'getAnnotation is called with the correct payload');
+    st.deepEquals(_getAnnotation.getCall(0).args[0].payload, payload, 'getAnnotation is called with the correct payload');
     st.equals(_selectFromDb.getCall(1).args[0]._term, 'test', 'selectFromDb is called again with the correct term');
     st.equals(result, mockResult, 'It returns the expected result');
     st.end();
@@ -174,64 +173,5 @@ test('Testing controller', (t: Test) => {
     st.end();
   });
 
-  t.test('Test search endpoint', async function (st: Test) {
-
-    const _postgres: any = {};
-    const payload = { term: 'test' };
-    const _ajv: any = new Ajv();
-    const validateStub = stub(_ajv, 'validate').returns(true);
-    const _schema = stub();
-    const mockResult = {
-      'ontology_uid': 26,
-      'confidence': 0.6,
-      'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
-      'ontology_term': 'test',
-      'source_uri': 'https://www.test.ac.uk/test',
-      'short_name': 'test'
-    };
-
-    const _selectFromDb = stub().returns(Promise.resolve(mockResult));
-    const _getAnnotation = stub().returns(Promise.resolve());
-
-    const result = await search({ payload, _postgres, _ajv, _schema, _selectFromDb })
-      .catch((err) => {
-        st.notOk(err, 'Function should not error');
-      });
-
-    st.assert((_ajv.validate as any).called, 'It calls validate once');
-    st.assert((_selectFromDb as any).calledOnce, 'It calls _selectFromDb');
-    st.equals(_selectFromDb.getCall(0).args[0]._term, 'test', 'SelectFromDb is called with the correct term');
-    st.equals(result, mockResult, 'It returns the expected result');
-    st.end();
-  });
-
-  t.test('If the search schema is not valid, throws an error', async function (st: Test) {
-
-    const _postgres: any = {};
-    const payload = { term: 'test', field: 'other' };
-    const _ajv: any = new Ajv();
-    const validateStub = stub(_ajv, 'validate').returns(false);
-    const _schema: any = JSON.parse(fs.readFileSync('./schemas/search-schema.json', 'utf8'));
-    const mockResult = {
-      'ontology_uid': 26,
-      'confidence': 0.6,
-      'ontology_uri': 'http://www.test.ac.uk/TEST_0005016',
-      'ontology_term': 'test',
-      'source_uri': 'https://www.test.ac.uk/test',
-      'short_name': 'test'
-    };
-    const _selectFromDb = stub().returns(Promise.resolve(mockResult));
-    const _getAnnotation = stub().returns(Promise.resolve());
-
-    const result = await search({ payload, _postgres, _ajv, _schema, _selectFromDb })
-      .catch((err) => {
-        st.ok(err, 'Function should throw error');
-      });
-
-    st.assert((_ajv.validate as any).calledOnce, 'It calls validate once');
-    st.deepEquals((_ajv.validate as any).getCall(0).args, [_schema, payload], 'It calls validate with correct args');
-    st.assert(_selectFromDb.notCalled, 'SelectFromDb is not called');
-    st.end();
-
-  });
+  t.end();
 });
