@@ -8,12 +8,18 @@ services:
       - .:/opt
     environment:
       TERM: dumb
+      RABBIT_URI: amqp://guest:guest@rabbit
+      DB_URI: postgres://repositive:repositive@postgres:5432/metis
     networks:
       - service
       - rabbit
+      - postgres
 
 networks:
   service:
+  postgres:
+    external:
+      name: postgres
   rabbit:
     external:
       name: rabbit

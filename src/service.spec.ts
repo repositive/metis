@@ -47,9 +47,9 @@ test('Testing basic service', (t: Test) => {
       });
 
     addCall = _iris.register.getCall(1);
-    t.equal(addCall.args[0].pattern, 'action.annotate', 'The service exposes an annotate handle');
-  }
+    t.equal(addCall.args[0].pattern, 'action.annotate.get', 'The service exposes a get handle');
 
+  }
   _test()
     .then(() => t.end())
     .catch(console.error);
