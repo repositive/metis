@@ -19,6 +19,11 @@ spec:
         - name: metis
           image: registry.repositive.io:5000/metis:${TAG}
           env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: metis-production
+                  key: db-uri
             - name: RABBIT_URI
               valueFrom:
                 secretKeyRef:
@@ -29,6 +34,6 @@ spec:
           resources:
             requests:
               memory: 128Mi
-              cpu: 50m
+              cpu: 0.01
       imagePullSecrets:
         - name: regsecret
