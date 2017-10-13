@@ -1,6 +1,6 @@
 {
   "iris": {
-    "uri": "amqp://guest:guest@rabbit",
+    "uri": "amqp://guest:guest@localhost",
     "namespace": "metis"
   },
   "db": {
