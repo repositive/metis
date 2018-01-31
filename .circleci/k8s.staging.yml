@@ -20,6 +20,11 @@ spec:
         - name: metis
           image: registry.repositive.io:5000/metis:${TAG}
           env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: metis-staging
+                  key: db-uri
             - name: RABBIT_URI
               valueFrom:
                 secretKeyRef:

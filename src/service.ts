@@ -1,22 +1,36 @@
 import irisSetup from '@repositive/iris';
+import { inject } from '@repositive/iris';
+
 import * as config from 'config';
 import annotate from './annotate';
 import getSynonyms from './getSynonyms';
+
+import { get } from './controller';
+import { Pool } from 'pg';
 
 const pack = require('../package.json');
 
 export default async function init({
   _config = config,
   _irisSetup = irisSetup,
-  _pack = pack
+  _pack = pack,
+  _Pool = Pool
 }: {
-  _config ? : typeof config,
-  _irisSetup ? : typeof irisSetup,
-  _pack ? : { version: string }
-}): Promise < void > {
-  const irisOpts = _config.get < any > ('iris');
+    _config?: typeof config,
+    _irisSetup?: typeof irisSetup,
+    _pack?: { version: string },
+    _Pool?: typeof Pool
+  }): Promise<void> {
 
+  const irisOpts = _config.get<any>('iris');
   const iris = await _irisSetup(irisOpts);
+
+  const pgOpts = _config.get<any>('db');
+  const postgres = new _Pool(pgOpts);
+  postgres.on('error', (err: Error) => {
+    console.error(err.stack);
+    process.exit(1);
+  });
 
   iris.register({
     pattern: 'status.metis',
@@ -28,9 +42,10 @@ export default async function init({
     }
   });
 
+  const _getHandler = inject({ args: { _postgres: postgres }, func: get });
   iris.register({
-    pattern: 'action.annotate',
-    handler: annotate
+    pattern: 'action.annotate.get',
+    handler: _getHandler
   });
 
   iris.register({

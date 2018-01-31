@@ -7,11 +7,30 @@ It takes a field and term and responds with ontology terms for 'assay'/'technolo
 1. [http://greekmythology.wikia.com/wiki/Metis](http://greekmythology.wikia.com/wiki/Metis)
 2. [https://en.wikipedia.org/wiki/Metis_(mythology)](https://en.wikipedia.org/wiki/Metis_(mythology))
 
-### To use
-To annotate with ontology terms Metis uses Iris to register a `action.annotate` pattern.
-The annotate payload must be in the [format](schemas/annotate-is-valid.json):
+### Update Datasets with Ontology Terms
+
+Metis uses Iris to register a `action.annotate.get` pattern.
+
+The ingestion payload must be in the [format](schemas/get-schema.json):
+```ts
+type Payload = {
+  term: string;
+  field?: string;
+  force?: boolean;
+}
 ```
-{ field: string, term: string }
+
+
+The response is always an array of matched terms:
+
+```ts
+type Response = [{
+  term: string; // The standard term matched
+  iri: string; // The Ontology Term IRI
+  confidence: number; // How likely it is that the match is correct
+  source: string; // The matched ontoloty URL
+  short_name: string; // The matched ontology name identifier.
+}]
 ```
 
 To get synonyms for an ontology term Metis uses Iris to register a `action.get.synonyms` pattern.
@@ -23,9 +42,24 @@ The synonyms payload must be in the [format](schemas/synonyms-is-valid.json):
 
 >>>>>>> origin/master
 
+## Setting up the database
+
+Metis uses postgres to store a lookup table and accelerate the process of returning existing results from previous queries. To setup the database create a new  database called `metis` and execute [`setup.sql`](setup.sql).
+
 ## About Docker Compose
 
-The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit:
+The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit, and to the postgres database:
+
+**Create the postgres network**
+```bash
+$ docker network create postgres
+```
+
+**Run a postgres process**
+```bash
+$ docker run --name=postgres --network=postgres -p 5432:5432 -d registry.repositive.io:5000/postgres-data
+```
+
 
 **Create the rabbit network**
 ```bash

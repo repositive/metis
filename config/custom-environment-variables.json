@@ -1,5 +1,9 @@
 {
-  "iris" : {
+  "db": {
+    "connectionString": "DB_URI",
+    "logs": "DB_LOGS_ENABLED"
+  },
+  "iris": {
     "uri": "RABBIT_URI",
     "exchange": "RABBIT_EXCHANGE",
     "namespace": "IRIS_NAMESPACE"
