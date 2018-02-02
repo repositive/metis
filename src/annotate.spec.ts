@@ -20,7 +20,7 @@ test('Testing Zooma annotate service', (t: Test) => {
       short_name: 'efo'
     }];
 
-    const requestResponse: any = JSON.parse(fs.readFileSync('./assets/testResponse.json', 'utf8'));
+    const requestResponse: any = JSON.parse(fs.readFileSync('./assets/testAnnotateResponse.json', 'utf8'));
 
     const mockedReq = stub().returns(Promise.resolve([requestResponse]));
 

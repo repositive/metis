@@ -5,7 +5,7 @@ import { stub } from 'sinon';
 import * as fs from 'fs';
 import * as Ajv from 'ajv';
 
-import { get, selectFromDb, getAnnotation } from './controller';
+import { get, selectFromDb, getAnnotation } from './controllerAnnotate';
 
 //-------------------------------
 
