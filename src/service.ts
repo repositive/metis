@@ -2,10 +2,10 @@ import irisSetup from '@repositive/iris';
 import { inject } from '@repositive/iris';
 
 import * as config from 'config';
-import annotate from './annotate';
-import getSynonyms from './getSynonyms';
 
-import { get } from './controller';
+import { get } from './controllerAnnotate';
+import { getSynonyms } from './controllerSynonyms';
+
 import { Pool } from 'pg';
 
 const pack = require('../package.json');
@@ -48,8 +48,10 @@ export default async function init({
     handler: _getHandler
   });
 
+
+  const _getSynonymsHandler = inject({ args: { _postgres: postgres }, func: getSynonyms });
   iris.register({
-    pattern: 'action.get.synonyms',
-    handler: getSynonyms
+    pattern: 'action.synonyms.get',
+    handler: _getSynonymsHandler
   });
 }

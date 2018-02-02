@@ -19,7 +19,7 @@ networks:
   service:
   postgres:
     external:
-      name: postgres
+      name: infra_postgres
   rabbit:
     external:
-      name: rabbit
+      name: infra_rabbit
