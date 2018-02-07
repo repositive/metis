@@ -5,6 +5,8 @@ import * as config from 'config';
 
 import { get } from './controllerAnnotate';
 import { getSynonyms } from './controllerSynonyms';
+import { populateSynonyms } from './controllerSynonyms';
+import { getAllSynonyms } from './controllerSynonyms';
 
 import { Pool } from 'pg';
 
@@ -53,5 +55,17 @@ export default async function init({
   iris.register({
     pattern: 'action.synonyms.get',
     handler: _getSynonymsHandler
+  });
+
+  const _populateSynonymsHandler = inject({ args: { _postgres: postgres }, func: populateSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.populate',
+    handler: _populateSynonymsHandler
+  });
+
+  const _allSynonymsHandler = inject({ args: { _postgres: postgres }, func: getAllSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.all',
+    handler: _allSynonymsHandler
   });
 }

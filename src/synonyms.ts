@@ -3,8 +3,10 @@ import * as fs from 'fs';
 import * as Ajv from 'ajv';
 import { request } from 'https';
 
+import * as R from 'ramda';
 
-export default async function synonyms({
+
+export async function synonyms({
    payload }: { payload: { symbol: string } }) {
 
   const data: any = payload;
@@ -15,15 +17,14 @@ export default async function synonyms({
     method: 'GET',
     uri: url_symbol as string,
     json: true
-  };
+    };
 
   const result: any = await _request(options_symbol)
     .then((res: any) => {
       if (res.response.docs.length === 1 && typeof res.response.docs[0] !== 'undefined') {
           return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
-      }else {
-        const json_alias = retrieveAliasSynonyms({ symbol_alias : symbol });
-        return json_alias;
+      } else {
+        return aliasSynonyms({ symbol_alias : symbol });
       }
     })
     .catch((err: any) => {
@@ -31,24 +32,55 @@ export default async function synonyms({
       throw new Error('_request error: ' + err);
     });
 
-  console.log(result);
   return result;
 }
 
-function retrieveAliasSynonyms({ symbol_alias }: { symbol_alias: string }) {
+export async function allSynonyms() {
+  const url_all = 'http://rest.genenames.org/fetch/status/Approved';
+
+  const options_all = {
+    method: 'GET',
+    uri: url_all as string,
+    json: true
+    };
+
+  const json_all: any = _request(options_all)
+    .then((res: any) => {
+      const filterUndefined = R.pipe(R.prop('alias_symbol'), R.isNil, R.not);
+      const definedAlias = R.filter(filterUndefined, res.response.docs);
+      const reduceToSymbol = R.pick(['symbol','alias_symbol']);
+      const reducedAlias = R.map(reduceToSymbol, definedAlias);
+      const combinedReducedAlias = R.map(R.values, reducedAlias);
+      return R.map(R.flatten, combinedReducedAlias);
+      /*
+      * TO-DO:  A potential problem maybe that one alias_symbol can belong to multiple symbols.
+      *         So it maybe useful to remove those alias_symbols, which belong to multiple symbols.
+      *         Example: A --> B,C,D
+      *                  E --> B,F,G
+      *                  Remove B, because it is a synonyms for A and E(?)
+      */
+    })
+    .catch((err: any) => {
+      //console.log('_request error: ' + err);
+      throw new Error('_request error: ' + err);
+    });
+  return json_all;
+ }
+
+function aliasSynonyms({ symbol_alias }: { symbol_alias: string }) {
  const url_aliassymbol = `https://rest.genenames.org/fetch/alias_symbol/${symbol_alias}`;
 
  const options_aliassymbol = {
-   method: 'GET',
-   uri: url_aliassymbol as string,
-   json: true
- };
+  method: 'GET',
+  uri: url_aliassymbol as string,
+  json: true
+  };
 
  const json_aliassymbol: any = _request(options_aliassymbol)
    .then((res: any) => {
      if (res.response.docs.length === 1 && typeof res.response.docs[0] !== 'undefined') {
         return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
-     }else {
+     } else {
        return [];
      }
    })
