@@ -35,7 +35,7 @@ type Response = [{
 
 ### Update Datasets by single list of Synonyms
 
-Metis uses Iris to register a `action.annotate.get` pattern.
+Metis uses Iris to register a `action.synonyms.get` pattern.
 
 The ingestion payload must be in the [format](schemas/synonyms-is-valid.json):
 ```ts

@@ -4,9 +4,8 @@ import { inject } from '@repositive/iris';
 import * as config from 'config';
 
 import { get } from './controllerAnnotate';
-import { getSynonyms } from './controllerSynonyms';
-import { populateSynonyms } from './controllerSynonyms';
-import { getAllSynonyms } from './controllerSynonyms';
+import { getSynonyms, populateSynonyms, getAllSynonyms } from './controllerSynonyms';
+
 
 import { Pool } from 'pg';
 

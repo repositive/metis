@@ -1,6 +1,5 @@
 import { Pool } from 'pg';
-import { synonyms } from './synonyms';
-import { allSynonyms } from './synonyms';
+import { synonyms, allSynonyms } from './synonyms';
 import * as fs from 'fs';
 import * as Ajv from 'ajv';
 import * as R from 'ramda';
@@ -36,17 +35,17 @@ export async function getSynonyms({
   let result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
 
   // if result undefined (ie. no rows found)
+  const { symbol } = payload;
   if (result[0] === undefined && payload.symbol) {
-    const { symbol } = payload;
-    const stored = await updateSynonyms({ payload : { symbol } , _postgres });
+
+    await updateSynonyms({ payload : { symbol } , _postgres });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
   } else if(result[0] !== undefined && payload.symbol && ((Date.now() - result[0].last_update) / ( 1000 * 60 * 60 * 24 ) ) > 30) { // Update synonyms when last updated 31 days ago.
     // Delete entry first and trigger update afterwards
     const listSynonyms = result[0].list_synonyms;
     await _deleteSynonymsFromDb({_postgres, listSynonyms });
 
-    const { symbol } = payload;
-    const stored = await updateSynonyms({ payload : { symbol } , _postgres });
+    await updateSynonyms({ payload : { symbol } , _postgres });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
   }
   const reduceToListSynonyms = R.pick(['list_synonyms']);
@@ -57,22 +56,17 @@ export async function getSynonyms({
 // --------------------------
 
 export async function getAllSynonyms({
-  payload,
   _postgres,
   _selectAllSynonymsFromDb = selectAllSynonymsFromDb
  }: {
-    payload: { symbol : string},
     _postgres: Pool,
     _selectAllSynonymsFromDb?: typeof selectAllSynonymsFromDb
   }): Promise<any[]> {
 
-  let result =  await _selectAllSynonymsFromDb({ _postgres });
+  const result =  await _selectAllSynonymsFromDb({ _postgres });
   const reduceToListSynonyms = R.pick(['list_synonyms']);
-  result = R.map(reduceToListSynonyms, result);
-  result = R.map(R.values, result);
-  console.log(result);
 
-  return result;
+  return R.pipe(R.map(reduceToListSynonyms), R.map(R.values))(result);
 }
 
 // --------------------------
@@ -137,23 +131,25 @@ export async function updateSynonyms({
 
 export async function populateSynonyms({
   _postgres,
-  _deleteAllSynonymsFromDb = deleteAllSynonymsFromDb
+  _deleteAllSynonymsFromDb = deleteAllSynonymsFromDb,
+  _storeSynonyms = storeSynonyms
   }: {
     _postgres: Pool,
-    _deleteAllSynonymsFromDb?: typeof deleteAllSynonymsFromDb
+    _deleteAllSynonymsFromDb?: typeof deleteAllSynonymsFromDb,
+    _storeSynonyms?: typeof storeSynonyms
   }) {
 
   // get synonyms from HUGO
-  deleteAllSynonymsFromDb({ _postgres });
+  _deleteAllSynonymsFromDb({ _postgres });
   const listlistSynonyms = await allSynonyms();
   listlistSynonyms.forEach((listSynonyms: any) => {
-    storeSynonyms({ listSynonyms, _postgres });
+    _storeSynonyms({ listSynonyms, _postgres });
   });
   console.log('Database populated!');
 }
 
 // --------------------------
-export async function storeSynonyms({
+async function storeSynonyms({
   listSynonyms,
   _postgres
   }: {
@@ -170,7 +166,10 @@ export async function storeSynonyms({
 
     // insert standardised terms into table, return the row id to link to original term
     const synonyms_uid = await _postgres.query(insertSynonyms)
-      .then((data: any) => data.rows[0].id);
+      .then((data: any) => data.rows[0].id)
+      .catch(function(e) {
+        return -1;
+      });
 
     for ( const synonymToken of listSynonyms ) {
       const createQuery = {
@@ -178,8 +177,7 @@ export async function storeSynonyms({
         values: [synonyms_uid, synonymToken]
       };
 
-
-      await _postgres.query(createQuery);
+      _postgres.query(createQuery);
     }
   }
 }

@@ -9,6 +9,5 @@
       "description": "Symbol for which synonyms are searched."
     }
   },
-  "required": ["symbol"],
-  "additionalProperties": false
+  "required": ["symbol"]
 }
