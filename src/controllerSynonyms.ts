@@ -132,16 +132,18 @@ export async function updateSynonyms({
 export async function populateSynonyms({
   _postgres,
   _deleteAllSynonymsFromDb = deleteAllSynonymsFromDb,
-  _storeSynonyms = storeSynonyms
+  _storeSynonyms = storeSynonyms,
+  _allSynonyms = allSynonyms
   }: {
     _postgres: Pool,
     _deleteAllSynonymsFromDb?: typeof deleteAllSynonymsFromDb,
-    _storeSynonyms?: typeof storeSynonyms
+    _storeSynonyms?: typeof storeSynonyms,
+    _allSynonyms?: typeof allSynonyms
   }) {
 
   // get synonyms from HUGO
   _deleteAllSynonymsFromDb({ _postgres });
-  const listlistSynonyms = await allSynonyms({});
+  const listlistSynonyms = await _allSynonyms({});
   listlistSynonyms.forEach((listSynonyms: any) => {
     _storeSynonyms({ listSynonyms, _postgres });
   });

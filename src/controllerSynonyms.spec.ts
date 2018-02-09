@@ -91,7 +91,15 @@ test('Testing controller', (t: Test) => {
 
     const _postgres: any = { query: stub().returns(Promise.resolve()) };
 
-    await populateSynonyms({ _postgres })
+    const mockResult = [ [ 'A1BG-AS1', 'FLJ23569' ],
+        [ 'A1CF', 'ACF', 'ASP', 'ACF64', 'ACF65', 'APOBEC1CF' ],
+        [ 'A2M', 'FWP007', 'S863-7', 'CPAMD5' ],
+        [ 'ABAT', 'GABAT' ],
+        [ 'ABCA1', 'TGD' ] ];
+
+    const _allSynonyms: any = stub().returns(Promise.resolve(mockResult));
+
+    await populateSynonyms({ _postgres, _allSynonyms })
     .catch(function(e) {
       st.ok(e, 'TypeError: Cannot read property \'0\' of undefined');
     });

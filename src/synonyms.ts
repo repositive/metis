@@ -25,10 +25,10 @@ export async function synonyms({
 
   const result: any = await _request(options_symbol)
     .then((res: any) => {
-      if (typeof res.response.docs[0] !== 'undefined' && res.response.docs.length === 1) {
+      if (typeof res.response.docs !== 'undefined' && res.response.docs.length === 1) {
         return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
       } else {
-        return aliasSynonyms({ symbol_alias: symbol });
+        return aliasSynonyms({ symbol_alias: symbol, _request });
       }
     })
     .catch((err: any) => {
@@ -91,7 +91,7 @@ function aliasSynonyms({
 
   const json_aliassymbol: any = _request(options_aliassymbol)
     .then((res: any) => {
-      if (res.response.docs.length === 1 && typeof res.response.docs[0] !== 'undefined') {
+      if ( typeof res.response.docs !== 'undefined' && res.response.docs.length === 1) {
         return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
       } else {
         return [];
