@@ -7,16 +7,36 @@ import { synonyms, allSynonyms } from './synonyms';
 //-------------------------------
 
 test('Testing getSynonym service', (t: Test) => {
-  t.test('Returns synonyms', async function(st: Test) {
+  t.test('Returns synonyms', async function (st: Test) {
 
     const symbol: string = 'ERBB2';
+    const synonymsResult = ['NEU', 'HER-2', 'CD340', 'HER2', 'ERBB2'];
 
-    const synonymsResult = ['NEU','HER-2','CD340','HER2','ERBB2'];
+    const requestResponse: any = {
+      'response': {
+        'docs': [{
+          'symbol': 'ERBB2',
+          'name': 'erb-b2 receptor tyrosine kinase 2',
+          'alias_symbol': [
+            'NEU',
+            'HER-2',
+            'CD340',
+            'HER2'
+          ],
+          'alias_name': [
+            'neuro/glioblastoma derived oncogene homolog',
+            'human epidermal growth factor receptor 2'
+          ]
+        }]
+      }
+    };
+
+    const _request: any = stub().returns(Promise.resolve(requestResponse));
 
     st.equals(typeof synonyms, 'function', 'The module exports a function called synonyms');
 
-    const result = await synonyms({ payload: { symbol } })
-      .then(function(data: any) {
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
         //console.log('got data', data);
         return data;
       }).catch((err: any) => {
@@ -30,16 +50,17 @@ test('Testing getSynonym service', (t: Test) => {
 
   //----------------------------
 
-  t.test('Returns synonyms via alias', async function(st: Test) {
+  t.test('Returns synonyms via alias', async function (st: Test) {
 
     const symbol: string = 'HER2';
+    const synonymsResult = ['NEU', 'HER-2', 'CD340', 'HER2', 'ERBB2'];
 
-    const synonymsResult = ['NEU','HER-2','CD340','HER2','ERBB2'];
+    const _request: any = stub().returns(Promise.resolve());
 
     st.equals(typeof synonyms, 'function', 'The module exports a function called synonyms');
 
-    const result = await synonyms({ payload: { symbol } })
-      .then(function(data: any) {
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
         //console.log('got data', data);
         return data;
       }).catch((err: any) => {
@@ -51,16 +72,16 @@ test('Testing getSynonym service', (t: Test) => {
     st.end();
   });
 
-  t.test('Fail to find a synonym', async function(st: Test) {
+  t.test('Fail to find a synonym', async function (st: Test) {
 
     const symbol: string = 'zzzzyzzz';
-
-    const synonymsResult : any[] = [];
+    const synonymsResult: any[] = [];
+    const _request: any = stub().returns(Promise.resolve());
 
     st.equals(typeof synonyms, 'function', 'The module exports a function called synonyms');
 
-    const result = await synonyms({ payload: { symbol } })
-      .then(function(data: any) {
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
         //console.log('got data', data);
         return data;
       }).catch((err: any) => {
@@ -68,7 +89,7 @@ test('Testing getSynonym service', (t: Test) => {
         st.notOk(err, 'There is an error');
       });
     st.assert(result instanceof Object, 'Returns an object');
-    st.deepEquals(result,synonymsResult, 'The final result is equal to the expected result');
+    st.deepEquals(result, synonymsResult, 'The final result is equal to the expected result');
     st.end();
   });
 
