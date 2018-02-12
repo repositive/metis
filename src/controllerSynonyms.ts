@@ -15,6 +15,8 @@ export async function getSynonyms({
   _postgres,
   _selectSynonymsFromDb = selectSynonymsFromDb,
   _deleteSynonymsFromDb = deleteSynonymsFromDb,
+  _updateSynonyms = updateSynonyms,
+  _synonyms = synonyms,
   _ajv = ajv,
   _schema = schema
  }: {
@@ -22,6 +24,8 @@ export async function getSynonyms({
     _postgres: Pool,
     _selectSynonymsFromDb?: typeof selectSynonymsFromDb,
     _deleteSynonymsFromDb?: typeof deleteSynonymsFromDb,
+    _updateSynonyms?: typeof updateSynonyms,
+    _synonyms?: typeof synonyms,
     _ajv?: typeof ajv,
     _schema?: typeof schema
   }): Promise<any[]> {
@@ -38,14 +42,14 @@ export async function getSynonyms({
   const { symbol } = payload;
   if (result[0] === undefined && payload.symbol) {
 
-    await updateSynonyms({ payload: { symbol }, _postgres });
+    await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
   } else if (result[0] !== undefined && payload.symbol && ((Date.now() - result[0].last_update) / (1000 * 60 * 60 * 24)) > 30) { // Update synonyms when last updated 31 days ago.
     // Delete entry first and trigger update afterwards
     const listSynonyms = result[0].list_synonyms;
     await _deleteSynonymsFromDb({ _postgres, listSynonyms });
 
-    await updateSynonyms({ payload: { symbol }, _postgres });
+    await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
   }
   const reduceToListSynonyms = R.pick(['list_synonyms']);
@@ -114,17 +118,21 @@ function selectAllSynonymsFromDb({
 
 // ------------------------
 
-export async function updateSynonyms({
+async function updateSynonyms({
   payload,
-  _postgres
+  _postgres,
+  _synonyms = synonyms,
+  _storeSynonyms = storeSynonyms
   }: {
     payload: { symbol: string },
-    _postgres: Pool
+    _postgres: Pool,
+    _synonyms?: typeof synonyms,
+    _storeSynonyms?: typeof storeSynonyms
   }) {
 
   // get synonyms from HUGO
-  const listSynonyms = await synonyms({ payload });
-  storeSynonyms({ listSynonyms, _postgres });
+  const listSynonyms = await _synonyms({ payload });
+  _storeSynonyms({ listSynonyms, _postgres });
 }
 
 // ------------------------
