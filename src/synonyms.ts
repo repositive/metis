@@ -24,9 +24,9 @@ export async function synonyms({
   };
 
   const result: any = await _request(options_symbol)
-    .then((res: any) => {
-      if (typeof res.response.docs !== 'undefined' && res.response.docs.length === 1) {
-        return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
+    .then((response: any) => {
+      if (!R.isNil(response.docs)) {
+        return consolidateResult(response);
       } else {
         return aliasSynonyms({ symbol_alias: symbol, _request });
       }
@@ -53,19 +53,8 @@ export async function allSynonyms({
   };
 
   const json_all: any = _request(options_all)
-    .then((res: any) => {
-      const filterUndefined = R.pipe(R.prop('alias_symbol'), R.isNil, R.not);
-      const definedAlias = R.filter(filterUndefined, res.response.docs);
-
-      return R.pipe(R.map(R.pick(['symbol', 'alias_symbol'])), R.map(R.values), R.map(R.flatten))(definedAlias);
-
-      /*
-      * TO-DO:  A potential problem maybe that one alias_symbol can belong to multiple symbols.
-      *         So it maybe useful to remove those alias_symbols, which belong to multiple symbols.
-      *         Example: A --> B,C,D
-      *                  E --> B,F,G
-      *                  Remove B, because it is a synonyms for A and E(?)
-      */
+    .then((response: any) => {
+      return consolidateResult(response);
     })
     .catch((err: any) => {
       //console.log('_request error: ' + err);
@@ -90,12 +79,8 @@ function aliasSynonyms({
   };
 
   const json_aliassymbol: any = _request(options_aliassymbol)
-    .then((res: any) => {
-      if ( typeof res.response.docs !== 'undefined' && res.response.docs.length === 1) {
-        return res.response.docs[0].alias_symbol.concat(res.response.docs[0].symbol);
-      } else {
-        return [];
-      }
+    .then((response: any) => {
+      return consolidateResult(response);
     })
     .catch((err: any) => {
       //console.log('_request error: ' + err);
@@ -104,3 +89,26 @@ function aliasSynonyms({
 
   return json_aliassymbol;
 }
+
+function consolidateResult({
+  response
+}:{
+    response: any
+  }) {
+    if ( !R.isNil(response.docs) ) {
+      const filterUndefined = R.pipe(R.prop('alias_symbol'), R.isNil, R.not);
+      const definedAlias = R.filter(filterUndefined, response.docs);
+      return R.pipe(R.map(R.pick(['symbol', 'alias_symbol'])), R.map(R.values), R.map(R.flatten))(definedAlias);
+
+     /*
+      * TO-DO:  A potential problem maybe that one alias_symbol can belong to multiple symbols.
+      *         So it maybe useful to remove those alias_symbols, which belong to multiple symbols.
+      *         Example: A --> B,C,D
+      *                  E --> B,F,G
+      *                  Remove B, because it is a synonyms for A and E(?)
+      */
+
+    } else {
+      return [];
+    }
+  }

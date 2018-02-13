@@ -40,14 +40,14 @@ export async function getSynonyms({
 
   // if result undefined (ie. no rows found)
   const { symbol } = payload;
-  if (result[0] === undefined && payload.symbol) {
+  if (R.isEmpty(result) && payload.symbol) {
 
     await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
-  } else if (result[0] !== undefined && payload.symbol && ((Date.now() - result[0].last_update) / (1000 * 60 * 60 * 24)) > 30) { // Update synonyms when last updated 31 days ago.
+  } else if (R.isEmpty(result) && payload.symbol && ((Date.now() - result[0].last_update) / (1000 * 60 * 60 * 24)) > 30) { // Update synonyms when last updated 31 days ago.
     // Delete entry first and trigger update afterwards
-    const listSynonyms = result[0].list_synonyms;
-    await _deleteSynonymsFromDb({ _postgres, listSynonyms });
+
+    R.map(R.compose(c =>_deleteSynonymsFromDb({_postgres, listSynonyms : c }), R.prop('list_synonyms')), result);
 
     await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
     result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
@@ -84,7 +84,7 @@ function selectSynonymsFromDb({
   }) {
   const query = {
     text:
-    `SELECT list_synonyms, last_update
+      `SELECT list_synonyms, last_update
     FROM synonyms
     INNER JOIN symbols
     ON synonyms.id = symbols.synonyms_uid
@@ -93,7 +93,11 @@ function selectSynonymsFromDb({
   };
 
   const result = _postgres.query(query)
-    .then(data => data.rows);
+    .then(data => data.rows)
+    .catch((err: any) => {
+      //console.log('_request error: ' + err);
+      throw new Error('_request error: ' + err);
+    });
 
   return result;
 }
@@ -107,11 +111,15 @@ function selectAllSynonymsFromDb({
   }) {
   const query = {
     text:
-    `SELECT list_synonyms FROM synonyms`
+      `SELECT list_synonyms FROM synonyms`
   };
 
   const result = _postgres.query(query)
-  .then(data => data.rows);
+    .then(data => data.rows)
+    .catch((err: any) => {
+      //console.log('_request error: ' + err);
+      throw new Error('_request error: ' + err);
+    });
 
   return result;
 }
@@ -131,8 +139,10 @@ async function updateSynonyms({
   }) {
 
   // get synonyms from HUGO
-  const listSynonyms = await _synonyms({ payload });
-  _storeSynonyms({ listSynonyms, _postgres });
+  const listlistSynonyms = await _synonyms({ payload });
+  listlistSynonyms.forEach((listSynonyms: any) => {
+    _storeSynonyms({ listSynonyms, _postgres });
+  });
 }
 
 // ------------------------
@@ -155,7 +165,7 @@ export async function populateSynonyms({
   listlistSynonyms.forEach((listSynonyms: any) => {
     _storeSynonyms({ listSynonyms, _postgres });
   });
-  console.log('Database populated!');
+
 }
 
 // --------------------------
@@ -177,18 +187,22 @@ async function storeSynonyms({
     // insert standardised terms into table, return the row id to link to original term
     const synonyms_uid = await _postgres.query(insertSynonyms)
       .then((data: any) => data.rows[0].id)
-      .catch(function (e) {
-        return -1;
+      .catch((err: any) => {
+        //console.log('_request error: ' + err);
+        throw new Error('_request error: ' + err);
       });
 
-    for (const synonymToken of listSynonyms) {
+    listSynonyms.forEach(function(synonymToken : string) {
       const createQuery = {
         text: 'INSERT INTO symbols(synonyms_uid, symbol) VALUES($1, $2)',
         values: [synonyms_uid, synonymToken]
       };
 
-      _postgres.query(createQuery);
-    }
+      _postgres.query(createQuery).catch((err: any) => {
+        //console.log('_request error: ' + err);
+        throw new Error('_request error: ' + err);
+      });
+    });
   }
 }
 
@@ -205,15 +219,23 @@ function deleteSynonymsFromDb({
     text: `DELETE FROM symbols WHERE "symbol" IN `.concat(stringListSynonyms)
   };
 
-  _postgres.query(queryDeleteSymbols);
+  _postgres.query(queryDeleteSymbols)
+  .catch((err: any) => {
+    //console.log('_request error: ' + err);
+    throw new Error('_request error: ' + err);
+  });
 
   const queryDeleteSynonyms = {
     text:
-    `DELETE FROM synonyms WHERE list_synonyms = $1`,
+      `DELETE FROM synonyms WHERE list_synonyms = $1`,
     values: [listSynonyms]
   };
 
-  _postgres.query(queryDeleteSynonyms);
+  _postgres.query(queryDeleteSynonyms)
+  .catch((err: any) => {
+    //console.log('_request error: ' + err);
+    throw new Error('_request error: ' + err);
+  });
 }
 
 function deleteAllSynonymsFromDb({
@@ -225,12 +247,20 @@ function deleteAllSynonymsFromDb({
     text: `DELETE FROM symbols`
   };
 
-  _postgres.query(queryDeleteSymbols);
+  _postgres.query(queryDeleteSymbols)
+  .catch((err: any) => {
+    //console.log('_request error: ' + err);
+    throw new Error('_request error: ' + err);
+  });
 
   const queryDeleteSynonyms = {
     text:
-    `DELETE FROM synonyms`
+      `DELETE FROM synonyms`
   };
 
-  _postgres.query(queryDeleteSynonyms);
+  _postgres.query(queryDeleteSynonyms)
+  .catch((err: any) => {
+    //console.log('_request error: ' + err);
+    throw new Error('_request error: ' + err);
+  });
 }

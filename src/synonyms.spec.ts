@@ -10,7 +10,7 @@ test('Testing getSynonym service', (t: Test) => {
   t.test('Returns synonyms', async function (st: Test) {
 
     const symbol: string = 'ERBB2';
-    const synonymsResult = ['NEU', 'HER-2', 'CD340', 'HER2', 'ERBB2'];
+    const synonymsResult = [ ['ERBB2', 'NEU', 'HER-2', 'CD340', 'HER2'] ];
 
     const requestResponse: any = {
       'response': {
@@ -53,7 +53,7 @@ test('Testing getSynonym service', (t: Test) => {
   t.test('Returns synonyms via alias', async function (st: Test) {
 
     const symbol: string = 'HER2';
-    const synonymsResult = ['NEU', 'HER-2', 'CD340', 'HER2', 'ERBB2'];
+    const synonymsResult = [ ['ERBB2', 'NEU', 'HER-2', 'CD340', 'HER2'] ];
 
     const requestResponse: any = {
       'response': {
