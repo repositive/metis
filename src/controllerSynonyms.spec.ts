@@ -21,16 +21,19 @@ test('Testing controller', (t: Test) => {
     const mockResult = [{
       'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\",\"CD340\",\"HER2\"]'
     }];
-
     const _selectSynonymsFromDb = stub().returns(Promise.resolve(mockResult));
 
-    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _ajv, _schema })
+    const mockResultSynonyms = ['ERBB2','NEU','HER-2','CD340','HER2'];
+    const _synonyms = stub().returns(Promise.resolve(mockResultSynonyms));
+
+    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _synonyms, _ajv, _schema })
       .catch((err) => {
         st.notOk(err, 'Function should not error');
       });
 
     st.assert((_ajv.validate as any).called, 'It calls validate once');
     st.assert((_selectSynonymsFromDb as any).calledOnce, 'It calls _selectSynonymsFromDb');
+    st.false((_synonyms as any).calledOnce, 'It does not call _synonyms');
     st.equals(_selectSynonymsFromDb.getCall(0).args[0]._symbol, 'ERBB2', '_selectSynonymsFromDb is called with the correct symbol');
     st.deepEquals(result, mockResult, 'It returns the expected result');
     st.end();
@@ -45,16 +48,20 @@ test('Testing controller', (t: Test) => {
     const validateStub = stub(_ajv, 'validate').returns(true);
     const _schema = stub();
     const mockResult: any[] = [];
-
     const _selectSynonymsFromDb = stub().returns(Promise.resolve(mockResult));
 
-    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _ajv, _schema })
+    const mockResultSynonyms: any[] = [];
+    const _synonyms = stub().returns(Promise.resolve(mockResultSynonyms));
+
+    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _synonyms, _ajv, _schema })
       .catch((err) => {
         st.notOk(err, 'Function should not error');
       });
 
     st.assert(_selectSynonymsFromDb.calledTwice, 'It calls selectFromDb twice');
     st.equals(_selectSynonymsFromDb.getCall(0).args[0]._symbol, '1234', 'selectFromDb is called with the correct term');
+    st.assert((_synonyms as any).calledOnce, 'It calls synonyms');
+    st.equals(_synonyms.getCall(0).args[0].payload.symbol, '1234', 'synonyms is called again with the correct term');
     st.equals(_selectSynonymsFromDb.getCall(1).args[0]._symbol, '1234', 'selectFromDb is called again with the correct term');
     st.same(result, mockResult, 'It returns the expected result');
     st.end();
@@ -91,7 +98,15 @@ test('Testing controller', (t: Test) => {
 
     const _postgres: any = { query: stub().returns(Promise.resolve()) };
 
-    await populateSynonyms({ _postgres })
+    const mockResult = [ [ 'A1BG-AS1', 'FLJ23569' ],
+        [ 'A1CF', 'ACF', 'ASP', 'ACF64', 'ACF65', 'APOBEC1CF' ],
+        [ 'A2M', 'FWP007', 'S863-7', 'CPAMD5' ],
+        [ 'ABAT', 'GABAT' ],
+        [ 'ABCA1', 'TGD' ] ];
+
+    const _allSynonyms: any = stub().returns(Promise.resolve(mockResult));
+
+    await populateSynonyms({ _postgres, _allSynonyms })
     .catch(function(e) {
       st.ok(e, 'TypeError: Cannot read property \'0\' of undefined');
     });
