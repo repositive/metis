@@ -6,7 +6,7 @@ import { Pool } from 'pg';
 import * as fs from 'fs';
 import * as Ajv from 'ajv';
 
-import { getSynonyms, populateSynonyms, getAllSynonyms } from './controllerSynonyms';
+import { getSynonyms, populateSynonyms, getAllSynonyms, selectSynonymsFromDb, selectAllSynonymsFromDb, deleteSynonymsFromDb } from './controllerSynonyms';
 
 //-------------------------------
 
@@ -94,6 +94,71 @@ test('Testing controller', (t: Test) => {
     st.end();
   });
 
+  t.test('Test selectAllSynonymsFromDb', async function (st: Test) {
+    const mockResult = {
+      rows: [{
+      'last_update':'123',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\",\"CD340\",\"HER2\"]'
+    },
+    {
+      'last_update':'456',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\"]'
+    }]};
+
+    const expectedResult = [{
+      'last_update':'123',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\",\"CD340\",\"HER2\"]'
+    },
+    {
+      'last_update':'456',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\"]'
+    }];
+
+    const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
+
+    const result = await selectAllSynonymsFromDb({ _postgres })
+      .catch((err) => {
+        st.notOk(err, 'Function should not error');
+      });
+
+    st.assert((_postgres.query as any).calledOnce, 'Query postgres once');
+    st.deepEquals(result, expectedResult, 'It returns the expected result');
+    st.end();
+  });
+
+  t.test('Test selectSynonymsFromDb', async function (st: Test) {
+    const _symbol = 'ERBB2';
+    const mockResult = {
+      rows: [{
+      'last_update':'123',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\",\"CD340\",\"HER2\"]'
+    },
+    {
+      'last_update':'456',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\"]'
+    }]};
+
+    const expectedResult = [{
+      'last_update':'123',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\",\"CD340\",\"HER2\"]'
+    },
+    {
+      'last_update':'456',
+      'list_synonyms':'[\"ERBB2\",\"NEU\",\"HER-2\"]'
+    }];
+
+    const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
+
+    const result = await selectSynonymsFromDb({ _postgres , _symbol })
+      .catch((err) => {
+        st.notOk(err, 'Function should not error');
+      });
+
+    st.assert((_postgres.query as any).calledOnce, 'Query postgres once');
+    st.deepEquals(result, expectedResult, 'It returns the expected result');
+    st.end();
+  });
+
   t.test('Test populateSynonyms', async function (st: Test) {
 
     const _postgres: any = { query: stub().returns(Promise.resolve()) };
@@ -113,6 +178,20 @@ test('Testing controller', (t: Test) => {
 
     st.ok((_postgres.query as any).called, 'true');
 
+    st.end();
+  });
+
+  t.test('Test deleteSynonymsFromDb', async function (st: Test) {
+    const _postgres: any = { query: stub().returns(Promise.resolve()) };
+
+    const listSynonyms = '("ERBB2","NEU","HER-2","CD340","HER2")';
+
+    const result = await deleteSynonymsFromDb({ _postgres, listSynonyms})
+      .catch((err) => {
+        st.notOk(err, 'Function should not error');
+      });
+
+    st.assert((_postgres.query as any).calledTwice, 'Trigger postgres call twice');
     st.end();
   });
 

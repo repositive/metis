@@ -96,7 +96,7 @@ export async function getAllSynonyms({
  * @param {String} _symbol - Symbol for which the synonyms are requested.
  * @returns {String} A list of synonyms from the database.
  */
-function selectSynonymsFromDb({
+export async function selectSynonymsFromDb({
   _postgres,
   _symbol
 }: {
@@ -128,7 +128,7 @@ function selectSynonymsFromDb({
  * @param {Object} _postgres - Pass postgres element to access the database.
  * @returns {String} A list of synonyms from the database.
  */
-function selectAllSynonymsFromDb({
+export async function selectAllSynonymsFromDb({
   _postgres
 }: {
     _postgres: Pool
@@ -244,7 +244,7 @@ async function storeSynonyms({
  * @param {Object} _postgres - Pass postgres element to access the database.
  * @param {JSON} listSynonyms - The list of synonyms, which has to be deleted from the database.
  */
-function deleteSynonymsFromDb({
+export async function deleteSynonymsFromDb({
   _postgres,
   listSynonyms
 }: {
