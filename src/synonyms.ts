@@ -4,7 +4,14 @@ import * as Ajv from 'ajv';
 
 import * as R from 'ramda';
 
-
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve the required synonyms.
+ * Example: https://rest.genenames.org/fetch/symbol/ERBB2
+ * If it does not retrieve the synonyms via the standard symbol, the alias symbol is used to retrieve results.
+ *
+ * @param {String} payload - contains the requested symbol as a string.
+ * @returns {JSON} A list of synonyms for the requested symbol.
+ */
 export async function synonyms({
    payload,
   _request = request
@@ -39,6 +46,10 @@ export async function synonyms({
   return result;
 }
 
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve all symbols and corresponding synonyms.
+ * @returns {JSON} All lists of synonyms provided by HUGO.
+ */
 export async function allSynonyms({
  _request = request
  }: {
@@ -62,6 +73,14 @@ export async function allSynonyms({
     });
   return json_all;
 }
+
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve the required synonyms via the aliases.
+ * Example: https://rest.genenames.org/fetch/alias_symbol/HER-2
+ *
+ * @param {JSON} payload - contains the requested symbol as a string.
+ * @returns {JSON} A list of synonyms for the requested symbol.
+ */
 
 function aliasSynonyms({
   symbol_alias,
@@ -90,6 +109,12 @@ function aliasSynonyms({
   return json_aliassymbol;
 }
 
+/**
+ * @desc This helper method reduces the HUGO response to the needed format and is therefore called by all request functions.
+ *
+ * @param {JSON} - Response from HUGO
+ * @returns {JSON} A consolidated json of synonyms
+ */
 function consolidateResult({
   response
 }:{

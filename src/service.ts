@@ -11,6 +11,13 @@ import { Pool } from 'pg';
 
 const pack = require('../package.json');
 
+/**
+ * @desc This function initializes Metis, so that it can respond to iris requests.
+ * @param {JSON} config - Pass configuration file.
+ * @param {Object} irisSetup - Pass iris setup.
+ * @param {JSON} pack - Pass package.json.
+ * @param {Object} Pool - Pass postgres element to work with database.
+ */
 export default async function init({
   _config = config,
   _irisSetup = irisSetup,
@@ -22,7 +29,6 @@ export default async function init({
     _pack?: { version: string },
     _Pool?: typeof Pool
   }): Promise<void> {
-
   const irisOpts = _config.get<any>('iris');
   const iris = await _irisSetup(irisOpts);
 

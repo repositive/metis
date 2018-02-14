@@ -10,6 +10,18 @@ const ajv = new Ajv({ allErrors: true, verbose: true });
 
 const schema: any = JSON.parse(fs.readFileSync('./schemas/synonyms-is-valid.json', 'utf8'));
 
+/**
+ * @desc This method is linked to the action iris.synonyms.get.
+ * It checks in the database whether a list of synonyms for the given symbol exists.
+ *
+ * If it does not exist, a request is send to the HUGO API at gennames.org to retrieve the required synonyms.
+ * The response from the HUGO is stored to the database and retruned.
+ *
+ * @param {String} payload - contains the requested symbol as a string.
+ * @param {Object} _postgres - Pass postgres element to work with database.
+ * @returns {String} A list of synonyms for the requested symbol.
+ */
+
 export async function getSynonyms({
   payload,
   _postgres,
@@ -57,8 +69,12 @@ export async function getSynonyms({
 }
 
 
-// --------------------------
-
+/**
+ * @desc This method is linked to the action iris.synonyms.all and returns all stored lists of synonyms from the database.
+ *
+ * @param {Object} _postgres - Pass postgres element to work with database.
+ * @returns {String} A list of all synonym lists in the database.
+ */
 export async function getAllSynonyms({
   _postgres,
   _selectAllSynonymsFromDb = selectAllSynonymsFromDb
@@ -73,8 +89,13 @@ export async function getAllSynonyms({
   return R.pipe(R.map(reduceToListSynonyms), R.map(R.values))(result);
 }
 
-// --------------------------
-
+/**
+ * @desc This method returns the list of synonyms for the provided symbol.
+ *
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @param {String} _symbol - Symbol for which the synonyms are requested.
+ * @returns {String} A list of synonyms from the database.
+ */
 function selectSynonymsFromDb({
   _postgres,
   _symbol
@@ -102,8 +123,11 @@ function selectSynonymsFromDb({
   return result;
 }
 
-// --------------------------
-
+/**
+ * @desc This method returns all lists of synonyms stored in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @returns {String} A list of synonyms from the database.
+ */
 function selectAllSynonymsFromDb({
   _postgres
 }: {
@@ -124,7 +148,11 @@ function selectAllSynonymsFromDb({
   return result;
 }
 
-// ------------------------
+/**
+ * @desc This method returns all lists of synonyms stored in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @returns {String} A list of synonyms from the database.
+ */
 
 async function updateSynonyms({
   payload,
@@ -145,8 +173,10 @@ async function updateSynonyms({
   });
 }
 
-// ------------------------
-
+/**
+ * @desc This method resets the current content in the database and replaces it with the response from Hugo for all synonyms.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
 export async function populateSynonyms({
   _postgres,
   _deleteAllSynonymsFromDb = deleteAllSynonymsFromDb,
@@ -168,7 +198,10 @@ export async function populateSynonyms({
 
 }
 
-// --------------------------
+/**
+ * @desc This method stores synonyms and symbols in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
 async function storeSynonyms({
   listSynonyms,
   _postgres
@@ -206,6 +239,11 @@ async function storeSynonyms({
   }
 }
 
+/**
+ * @desc This method deletes synonyms and symbols from the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @param {JSON} listSynonyms - The list of synonyms, which has to be deleted from the database.
+ */
 function deleteSynonymsFromDb({
   _postgres,
   listSynonyms
@@ -237,7 +275,10 @@ function deleteSynonymsFromDb({
     throw new Error('_request error: ' + err);
   });
 }
-
+/**
+ * @desc This method deletes all synonyms and symbols from the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
 function deleteAllSynonymsFromDb({
   _postgres
 }: {
