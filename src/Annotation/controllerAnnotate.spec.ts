@@ -9,7 +9,7 @@ import { get, selectFromDb, getAnnotation } from './controllerAnnotate';
 
 //-------------------------------
 
-test('Testing controller', (t: Test) => {
+test('Testing Annotation controller', (t: Test) => {
   t.test('Test get function when term is in database', async function (st: Test) {
 
     const _postgres: any = {};

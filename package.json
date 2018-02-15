@@ -39,9 +39,16 @@
             "logo": "./logo.png",
             "title": "Metis",
             "description": "Metis Documentation",
-            "repository": "https://github.com/repositive/metis/"
+            "repository": "https://github.com/repositive/metis/",
+            "image": "./logo.png"
+          },
+          "test": {
+            "source": "./dist",
+            "interfaces": ["describe", "it", "context", "suite", "test"],
+            "includes": ["(spec|Spec|test|Test)\\.js$"]
           }
         }
+        
       },
       {
         "name": "esdoc-typescript-plugin",

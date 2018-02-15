@@ -8,9 +8,9 @@ import * as Ajv from 'ajv';
 
 import { getSynonyms, populateSynonyms, getAllSynonyms, selectSynonymsFromDb, selectAllSynonymsFromDb, deleteSynonymsFromDb } from './controllerSynonyms';
 
-//-------------------------------
 
-test('Testing controller', (t: Test) => {
+test('Testing Synonyms controller', (t: Test) => {
+
   t.test('Test get function when symbol and synonyms list are in database', async function (st: Test) {
 
     const _postgres: any = { query: stub().returns(Promise.resolve()) };
