@@ -1,5 +1,7 @@
 # Metis
-Metis is the service that annotates datasets with ontology terms using the Zooma application developed by the SPOT team at EBI. Metis is named after the ancient Greek Titaness of good counsel, advice, planning, cunning, craftiness, and wisdom [[1](http://greekmythology.wikia.com/wiki/Metis), [2](https://en.wikipedia.org/wiki/Metis_(mythology))].
+Metis is the service that annotates datasets with ontology terms using the Zooma application developed by the SPOT team at EBI. Metis is also able to retrieve synonyms for an ontology term / ontology ID.
+
+Metis is named after the ancient Greek Titaness of good counsel, advice, planning, cunning, craftiness, and wisdom [[1](http://greekmythology.wikia.com/wiki/Metis), [2](https://en.wikipedia.org/wiki/Metis_(mythology))].
 It takes a field and term and responds with ontology terms for 'assay'/'technology'/'tissue'/'disease' fields.
 
 1. [http://greekmythology.wikia.com/wiki/Metis](http://greekmythology.wikia.com/wiki/Metis)
@@ -31,6 +33,37 @@ type Response = [{
 }]
 ```
 
+### Update Datasets by single list of Synonyms
+
+Metis uses Iris to register a `action.synonyms.get` pattern.
+
+The ingestion payload must be in the [format](schemas/synonyms-is-valid.json):
+```ts
+type Payload = {
+  symbol: string;
+}
+```
+
+
+The response is always an array of matched terms:
+
+```ts
+type Response = [{
+  list_synonyms: string; // A list of all synonyms retrieved via HUGO
+}]
+```
+
+### Populate Datasets with Synonyms
+
+Metis uses Iris to register a `action.annotate.populate` pattern.
+
+### Return list of all lists of Synonyms
+
+Metis uses Iris to register a `action.annotate.populate` pattern.
+
+
+
+>>>>>>> origin/master
 
 ## Setting up the database
 
@@ -38,8 +71,9 @@ Metis uses postgres to store a lookup table and accelerate the process of return
 
 ## About Docker Compose
 
-The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit, and to the postgres database:
+The current version of [Iris](https://github.com/repositive/iris-js) requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You'll need to run an instance yourself and attach it to the network rabbit, and to the postgres database. For this purpose please use the devops service:
 
+**Manual approach:**
 **Create the postgres network**
 ```bash
 $ docker network create postgres
@@ -60,6 +94,28 @@ $ docker network create rabbit
 ```bash
 $ docker run --name=rabbit --network=rabbit -p 5672:5672 -p 15672:15672 -d rabbitmq:3-management
 ```
+
+
+**Use devops service to start postgres network and rabbit network:**
+Open the devops service
+
+**Create postgres network**
+
+```bash
+$ cd development-environment/pdx/infra
+$ docker-compose up -d postgres
+```
+
+**Create rabbit network**
+
+```bash
+$ cd development-environment/pdx/infra
+$ docker-compose up -d rabbit
+```
+
+Now postgres and rabbit are running!
+
+Please return to the metis file system.
 
 If you run  `$ docker-compose up` now you should be able to see this service running using the iris cli `$ iris status`
 

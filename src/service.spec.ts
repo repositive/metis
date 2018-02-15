@@ -47,9 +47,19 @@ test('Testing basic service', (t: Test) => {
       });
 
     addCall = _iris.register.getCall(1);
-    t.equal(addCall.args[0].pattern, 'action.annotate.get', 'The service exposes a get handle');
+    t.equal(addCall.args[0].pattern, 'action.annotate.get', 'The service exposes an annotate handle');
+
+    addCall = _iris.register.getCall(2);
+    t.equal(addCall.args[0].pattern, 'action.synonyms.get', 'The service exposes a getSynonymsHandler');
+
+    addCall = _iris.register.getCall(3);
+    t.equal(addCall.args[0].pattern, 'action.synonyms.populate', 'The service exposes a populateSynonymsHandler');
+
+    addCall = _iris.register.getCall(4);
+    t.equal(addCall.args[0].pattern, 'action.synonyms.all', 'The service exposes a populateSynonymsHandler');
 
   }
+
   _test()
     .then(() => t.end())
     .catch(console.error);

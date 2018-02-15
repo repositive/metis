@@ -2,11 +2,22 @@ import irisSetup from '@repositive/iris';
 import { inject } from '@repositive/iris';
 
 import * as config from 'config';
-import { get } from './controller';
+
+import { get } from './Annotation/controllerAnnotate';
+import { getSynonyms, populateSynonyms, getAllSynonyms } from './Synonyms/controllerSynonyms';
+
+
 import { Pool } from 'pg';
 
 const pack = require('../package.json');
 
+/**
+ * @desc This function initializes Metis, so that it can respond to iris requests.
+ * @param {JSON} config - Pass configuration file.
+ * @param {Object} irisSetup - Pass iris setup.
+ * @param {JSON} pack - Pass package.json.
+ * @param {Object} Pool - Pass postgres element to work with database.
+ */
 export default async function init({
   _config = config,
   _irisSetup = irisSetup,
@@ -18,7 +29,6 @@ export default async function init({
     _pack?: { version: string },
     _Pool?: typeof Pool
   }): Promise<void> {
-
   const irisOpts = _config.get<any>('iris');
   const iris = await _irisSetup(irisOpts);
 
@@ -45,4 +55,22 @@ export default async function init({
     handler: _getHandler
   });
 
+
+  const _getSynonymsHandler = inject({ args: { _postgres: postgres }, func: getSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.get',
+    handler: _getSynonymsHandler
+  });
+
+  const _populateSynonymsHandler = inject({ args: { _postgres: postgres }, func: populateSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.populate',
+    handler: _populateSynonymsHandler
+  });
+
+  const _allSynonymsHandler = inject({ args: { _postgres: postgres }, func: getAllSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.all',
+    handler: _allSynonymsHandler
+  });
 }

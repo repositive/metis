@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "title": "Valid synonyms payload API",
+  "id": "synonyms-is-valid.json",
+  "type": "object",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "description": "Symbol for which synonyms are searched."
+    }
+  },
+  "required": ["symbol"]
+}

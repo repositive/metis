@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/Annotation/controllerAnnotate.spec.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"><meta property="twitter:image" content="./logo.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#annotation">Annotation</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#synonyms">Synonyms</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/Annotation/controllerAnnotate.spec.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as test from &apos;tape&apos;;
+import { Test } from &apos;tape&apos;;
+import { stub } from &apos;sinon&apos;;
+
+import * as fs from &apos;fs&apos;;
+import * as Ajv from &apos;ajv&apos;;
+
+import { get, selectFromDb, getAnnotation } from &apos;./controllerAnnotate&apos;;
+
+//-------------------------------
+
+test(&apos;Testing Annotation controller&apos;, (t: Test) =&gt; {
+  t.test(&apos;Test get function when term is in database&apos;, async function (st: Test) {
+
+    const _postgres: any = {};
+    const payload = { field: &apos;abc&apos;, term: &apos;test&apos; };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, &apos;validate&apos;).returns(true);
+    const _schema = stub();
+    const mockResult = [{
+      &apos;ontology_uid&apos;: 26,
+      &apos;confidence&apos;: 0.6,
+      &apos;ontology_uri&apos;: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+      &apos;ontology_term&apos;: &apos;test&apos;,
+      &apos;source_uri&apos;: &apos;https://www.test.ac.uk/test&apos;,
+      &apos;short_name&apos;: &apos;test&apos;
+    }];
+    const _selectFromDb = stub().returns(Promise.resolve(mockResult));
+    const _getAnnotation = stub().returns(Promise.resolve());
+
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_ajv.validate as any).called, &apos;It calls validate once&apos;);
+    st.assert((_selectFromDb as any).calledOnce, &apos;It calls _selectFromDb&apos;);
+    st.equals(_selectFromDb.getCall(0).args[0]._term, &apos;test&apos;, &apos;SelectFromDb is called with the correct term&apos;);
+    st.deepEquals(result, mockResult, &apos;It returns the expected result&apos;);
+    st.end();
+
+  });
+
+  t.test(&apos;If the schema is not valid, throws an error&apos;, async function (st: Test) {
+
+    const _postgres: any = {};
+    const payload = { field: &apos;abc&apos;, term: &apos;test&apos; };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, &apos;validate&apos;).returns(false);
+    const _schema: any = JSON.parse(fs.readFileSync(&apos;./schemas/get-schema.json&apos;, &apos;utf8&apos;));
+    const mockResult = {
+      &apos;ontology_uid&apos;: 26,
+      &apos;confidence&apos;: 0.6,
+      &apos;ontology_uri&apos;: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+      &apos;ontology_term&apos;: &apos;test&apos;,
+      &apos;source_uri&apos;: &apos;https://www.test.ac.uk/test&apos;,
+      &apos;short_name&apos;: &apos;test&apos;
+    };
+    const _selectFromDb = stub().returns(Promise.resolve(mockResult));
+    const _getAnnotation = stub().returns(Promise.resolve());
+
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+      .catch((err) =&gt; {
+        st.ok(err, &apos;Function should throw error&apos;);
+      });
+
+    st.assert((_ajv.validate as any).calledOnce, &apos;It calls validate once&apos;);
+    st.deepEquals((_ajv.validate as any).getCall(0).args, [_schema, payload], &apos;It calls validate with correct args&apos;);
+    st.assert(_selectFromDb.notCalled, &apos;SelectFromDb is not called&apos;);
+    st.end();
+
+  });
+
+  t.test(&apos;Test get function when term is not in database&apos;, async function (st: Test) {
+
+    const _postgres: any = {};
+    const payload = { field: &apos;abc&apos;, term: &apos;test&apos; };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, &apos;validate&apos;).returns(true);
+    const _schema = stub();
+    const mockResult = [{
+      &apos;ontology_uid&apos;: 26,
+      &apos;confidence&apos;: 0.6,
+      &apos;ontology_uri&apos;: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+      &apos;ontology_term&apos;: &apos;test&apos;,
+      &apos;source_uri&apos;: &apos;https://www.test.ac.uk/test&apos;,
+      &apos;short_name&apos;: &apos;test&apos;
+    }];
+    const _selectFromDb = stub()
+      .onFirstCall().returns(Promise.resolve([undefined]))
+      .onSecondCall().returns(Promise.resolve(mockResult));
+    const _getAnnotation = stub().returns(Promise.resolve());
+
+    const result = await get({ payload, _postgres, _ajv, _getAnnotation, _schema, _selectFromDb })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert(_selectFromDb.calledTwice, &apos;It calls selectFromDb twice&apos;);
+    st.equals(_selectFromDb.getCall(0).args[0]._term, &apos;test&apos;, &apos;selectFromDb is called with the correct term&apos;);
+    st.deepEquals(_getAnnotation.getCall(0).args[0].payload, payload, &apos;getAnnotation is called with the correct payload&apos;);
+    st.equals(_selectFromDb.getCall(1).args[0]._term, &apos;test&apos;, &apos;selectFromDb is called again with the correct term&apos;);
+    st.equals(result, mockResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test selectFromDb&apos;, async function (st: Test) {
+
+    const mockResult = {
+      otherKey: &apos;other&apos;,
+      rows: [{
+        &apos;ontology_uid&apos;: 26,
+        &apos;confidence&apos;: 0.6,
+        &apos;ontology_uri&apos;: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+        &apos;ontology_term&apos;: &apos;test&apos;,
+        &apos;source_uri&apos;: &apos;https://www.test.ac.uk/test&apos;,
+        &apos;short_name&apos;: &apos;test&apos;
+      }]
+    };
+
+    const expectedResult = [{
+      &apos;ontology_uid&apos;: 26,
+      &apos;confidence&apos;: 0.6,
+      &apos;ontology_uri&apos;: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+      &apos;ontology_term&apos;: &apos;test&apos;,
+      &apos;source_uri&apos;: &apos;https://www.test.ac.uk/test&apos;,
+      &apos;short_name&apos;: &apos;test&apos;
+    }];
+
+    const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
+    const _term = &apos;test&apos;;
+    const result = await selectFromDb({ _postgres, _term })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_postgres.query as any).calledOnce, &apos;Query postgres once&apos;);
+    st.deepEquals(result, expectedResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test getAnnotation&apos;, async function (st: Test) {
+
+    const mockResultArray = [{
+      term: &apos;test&apos;,
+      iri: &apos;http://www.test.ac.uk/TEST_0005016&apos;,
+      confidence: 0.75,
+      source: &apos;https://www.test.ac.uk/test&apos;,
+      short_name: &apos;test&apos;
+    }];
+
+    const mockResultObj = mockResultArray[0];
+    const mockOntology_uid = 5;
+
+    const query = stub()
+      .onFirstCall().returns(Promise.resolve({ rows: [{ id: mockOntology_uid }] }))
+      .onSecondCall().returns(Promise.resolve(mockResultObj));
+
+    const _postgres: any = { query };
+    const payload = { field: &apos;abc&apos;, term: &apos;test&apos; };
+    const _annotate = stub().returns(Promise.resolve(mockResultArray));
+
+    const result = await getAnnotation({ payload, _postgres, _annotate })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.equals((_annotate as any).getCall(0).args[0].payload, payload, &apos;Calls annotate with correct payload&apos;);
+    st.equals((_postgres.query as any).callCount, 2, &apos;Postgres query called correct number of times&apos;);
+
+    st.deepEquals((_postgres.query as any).getCall(0).args[0].values, [mockResultObj.iri, mockResultObj.term, mockResultObj.source, mockResultObj.short_name], &apos;First query made inserts ontology term&apos;);
+    st.deepEquals((_postgres.query as any).getCall(1).args[0].values, [payload.term, mockOntology_uid, mockResultObj.confidence], &apos;Second query is to insert the original term&apos;);
+    st.end();
+  });
+
+  t.end();
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

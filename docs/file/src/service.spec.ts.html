@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/service.spec.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"><meta property="twitter:image" content="./logo.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#annotation">Annotation</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#synonyms">Synonyms</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/service.spec.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as test from &apos;tape&apos;;
+import { Test } from &apos;tape&apos;;
+import { stub } from &apos;sinon&apos;;
+import init from &apos;./service&apos;;
+
+test(&apos;Testing basic service&apos;, (t: Test) =&gt; {
+  async function _test() {
+
+    const _pack = { version: &apos;1&apos;, name: &apos;metis&apos; };
+    const _iris = { request: stub() as any, register: stub().returns(Promise.resolve()) as any };
+    const _irisSetup = stub().returns(Promise.resolve(_iris));
+    const irisConfig = { url: &apos;a&apos;, exchange: &apos;b&apos;, namespace: &apos;c&apos; };
+    const _config = { get: stub().returns(irisConfig) } as any;
+
+    t.equals(typeof init, &apos;function&apos;, &apos;Service exports a function&apos;);
+
+    const setupResult = init({ _pack, _irisSetup, _config });
+
+    t.ok(setupResult instanceof Promise, &apos;Service setup must return a promise&apos;);
+
+    await setupResult
+      .then(() =&gt; {
+        t.ok(true, &apos;Yeah, service setup does not blow up&apos;);
+      })
+      .catch(() =&gt; {
+        t.notOk(true, &apos;Setup should not blow up at this point&apos;);
+      });
+
+    t.ok(_iris.register.called, &apos;Add from iris is called&apos;);
+
+    let addCall = _iris.register.getCall(0);
+
+    t.equal(addCall.args[0].pattern, &apos;status.metis&apos;, &apos;The service exposes a status handle&apos;);
+
+    const statusImp = addCall.args[0].handler;
+    const impResultP = statusImp({});
+
+    t.ok(impResultP instanceof Promise, &apos;The implementation of status returns a promise&apos;);
+
+    await impResultP
+      .then((result: any) =&gt; {
+        t.deepEqual(_pack, result, &apos;The implementation returns what we expect&apos;);
+        t.ok(true, &apos;Implementation does not blow up&apos;);
+      })
+      .catch(() =&gt; {
+        t.notOk(true, &apos;Implementation should not blow up&apos;);
+      });
+
+    addCall = _iris.register.getCall(1);
+    t.equal(addCall.args[0].pattern, &apos;action.annotate.get&apos;, &apos;The service exposes an annotate handle&apos;);
+
+    addCall = _iris.register.getCall(2);
+    t.equal(addCall.args[0].pattern, &apos;action.synonyms.get&apos;, &apos;The service exposes a getSynonymsHandler&apos;);
+
+    addCall = _iris.register.getCall(3);
+    t.equal(addCall.args[0].pattern, &apos;action.synonyms.populate&apos;, &apos;The service exposes a populateSynonymsHandler&apos;);
+
+    addCall = _iris.register.getCall(4);
+    t.equal(addCall.args[0].pattern, &apos;action.synonyms.all&apos;, &apos;The service exposes a populateSynonymsHandler&apos;);
+
+  }
+
+  _test()
+    .then(() =&gt; t.end())
+    .catch(console.error);
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

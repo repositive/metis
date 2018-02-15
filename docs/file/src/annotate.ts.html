@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/annotate.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/annotate.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as request from &apos;request-promise&apos;;
+import * as Ajv from &apos;ajv&apos;;
+import * as R from &apos;ramda&apos;;
+
+//-----------------------
+
+const confidenceScoreF = (text: string) =&gt; R.cond([
+  [R.equals(&apos;LOW&apos;), R.always(0.2)],
+  [R.equals(&apos;MEDIUM&apos;), R.always(0.4)],
+  [R.equals(&apos;GOOD&apos;), R.always(0.6)],
+  [R.equals(&apos;HIGH&apos;), R.always(0.8)],
+  [R.T, R.always(1)]
+])(text);
+
+export default async function annotate({
+   payload,
+  _request = request,
+  _confidenceScoreF = confidenceScoreF
+  }: {
+    payload: { field: string, term: string },
+    _request?: typeof request,
+    _confidenceScoreF?: typeof confidenceScoreF
+  }): Promise&lt;any&gt; {
+
+  const { field, term } = payload;
+
+  const ontologyDict = {
+    &apos;assay&apos;: &apos;efo,edam&apos;,
+    &apos;technology&apos;: &apos;efo,edam&apos;,
+    &apos;disease&apos;: &apos;efo,hp&apos;,
+    &apos;tissue&apos;: &apos;efo,hp&apos;
+  };
+
+  const ontology = ontologyDict[field];
+
+  const excludedTerms = [&apos;n/a&apos;, &apos;na&apos;, &apos;none&apos;, &apos;not available&apos;, &apos;not specified&apos;, &apos;other&apos;, &apos;unavailable&apos;, &apos;unknown&apos;, &apos;unspecified&apos;];
+
+  if (!term || excludedTerms.indexOf(term.toLowerCase()) &gt; -1) {
+    return []; // if term is excluded return undefined
+  }
+
+  const options = {
+    method: &apos;GET&apos;,
+    uri: &apos;http://www.ebi.ac.uk/spot/zooma/v2/api/services/annotate&apos;,
+    qs: {
+      propertyValue: term.toLowerCase(),
+      filter: `required:[gxa],ontologies:[${ontology}]`
+    },
+    json: true
+  };
+
+  const json: any = await _request(options)
+    .then((res: any) =&gt; {
+      return res;
+    })
+    .catch((err: any) =&gt; {
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+
+  // if there is no match, the request returns [undefined]
+  // if there are multiple matches, returns all.
+
+  if (json.length &gt; 0 &amp;&amp; typeof json[0] !== &apos;undefined&apos;) {
+    return json.map((x: any) =&gt; {
+      const uriSplit = x._links.olslinks[0].semanticTag.split(&apos;/&apos;);
+
+      // make ontologyShortName equal to ontology accession prefix
+      let short_name = uriSplit.slice(-1)[0].split(&apos;_&apos;)[0].toLowerCase();
+      if ([&apos;format&apos;, &apos;operation&apos;, &apos;topic&apos;, &apos;data&apos;].indexOf(short_name) &gt; -1) short_name = &apos;edam&apos;;
+      if (short_name === &apos;orphanet&apos;) short_name = &apos;ordo&apos;;
+
+      return {
+        term: x.annotatedProperty.propertyValue.toLowerCase(),
+        iri: x._links.olslinks[0].semanticTag,
+        confidence: _confidenceScoreF(x.confidence),
+
+        //  also storing which ontology it comes from
+        source: x.derivedFrom.provenance.source.uri,
+        short_name // shortname from IRI
+      };
+    });
+
+  } else {
+    return []; // if there is no match, returns an empty array
+  }
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

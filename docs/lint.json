@@ -1,0 +1,184 @@
+[
+  {
+    "name": "getSynonyms",
+    "filePath": "src/Synonyms/controllerSynonyms.ts",
+    "lines": [
+      {
+        "lineNumber": 17,
+        "line": " * @param {String} payload - contains the requested symbol as a string."
+      },
+      {
+        "lineNumber": 18,
+        "line": " * @param {Object} _postgres - Pass postgres element to work with database."
+      },
+      {
+        "lineNumber": 19,
+        "line": " * @returns {String} A list of synonyms for the requested symbol."
+      },
+      {
+        "lineNumber": 20,
+        "line": " */"
+      },
+      {
+        "lineNumber": 21,
+        "line": ""
+      },
+      {
+        "lineNumber": 22,
+        "line": "export async function getSynonyms({"
+      },
+      {
+        "lineNumber": 23,
+        "line": "  payload,"
+      },
+      {
+        "lineNumber": 24,
+        "line": "  _postgres,"
+      },
+      {
+        "lineNumber": 25,
+        "line": "  _selectSynonymsFromDb = selectSynonymsFromDb,"
+      },
+      {
+        "lineNumber": 26,
+        "line": "  _deleteSynonymsFromDb = deleteSynonymsFromDb,"
+      }
+    ],
+    "codeParams": [
+      "*"
+    ],
+    "docParams": [
+      "payload",
+      "_postgres"
+    ]
+  },
+  {
+    "name": "selectSynonymsFromDb",
+    "filePath": "src/Synonyms/controllerSynonyms.ts",
+    "lines": [
+      {
+        "lineNumber": 77,
+        "line": "  _selectAllSynonymsFromDb = selectAllSynonymsFromDb"
+      },
+      {
+        "lineNumber": 78,
+        "line": " }: {"
+      },
+      {
+        "lineNumber": 79,
+        "line": "    _postgres: Pool,"
+      },
+      {
+        "lineNumber": 80,
+        "line": "    _selectAllSynonymsFromDb?: typeof selectAllSynonymsFromDb"
+      },
+      {
+        "lineNumber": 81,
+        "line": "  }): Promise<any[]> {"
+      },
+      {
+        "lineNumber": 82,
+        "line": ""
+      },
+      {
+        "lineNumber": 83,
+        "line": "  const result = await _selectAllSynonymsFromDb({ _postgres });"
+      },
+      {
+        "lineNumber": 84,
+        "line": "  const reduceToListSynonyms = R.pick(['list_synonyms']);"
+      }
+    ],
+    "codeParams": [
+      "*"
+    ],
+    "docParams": [
+      "_postgres",
+      "_symbol"
+    ]
+  },
+  {
+    "name": "deleteSynonymsFromDb",
+    "filePath": "src/Synonyms/controllerSynonyms.ts",
+    "lines": [
+      {
+        "lineNumber": 212,
+        "line": "    const convertedListSynonyms = JSON.stringify(listSynonyms).replace('[', '\\[').replace(']', '\\]').replace('\\'', '');"
+      },
+      {
+        "lineNumber": 213,
+        "line": "    const insertSynonyms = {"
+      },
+      {
+        "lineNumber": 214,
+        "line": "      text: 'INSERT INTO synonyms(list_synonyms, last_update) VALUES($1, CURRENT_TIMESTAMP) RETURNING * ',"
+      },
+      {
+        "lineNumber": 215,
+        "line": "      values: [convertedListSynonyms]"
+      },
+      {
+        "lineNumber": 216,
+        "line": "    };"
+      },
+      {
+        "lineNumber": 217,
+        "line": ""
+      }
+    ],
+    "codeParams": [
+      "*"
+    ],
+    "docParams": [
+      "_postgres",
+      "listSynonyms"
+    ]
+  },
+  {
+    "name": "init",
+    "filePath": "src/service.ts",
+    "lines": [
+      {
+        "lineNumber": 17,
+        "line": " * @param {JSON} pack - Pass package.json."
+      },
+      {
+        "lineNumber": 18,
+        "line": " * @param {Object} Pool - Pass postgres element to work with database."
+      },
+      {
+        "lineNumber": 19,
+        "line": " */"
+      },
+      {
+        "lineNumber": 20,
+        "line": "export default async function init({"
+      },
+      {
+        "lineNumber": 21,
+        "line": "  _config = config,"
+      },
+      {
+        "lineNumber": 22,
+        "line": "  _irisSetup = irisSetup,"
+      },
+      {
+        "lineNumber": 23,
+        "line": "  _pack = pack,"
+      },
+      {
+        "lineNumber": 24,
+        "line": "  _Pool = Pool"
+      }
+    ],
+    "codeParams": [
+      "*"
+    ],
+    "docParams": [
+      "config",
+      "irisSetup",
+      "pack",
+      "Pool"
+    ]
+  }
+]

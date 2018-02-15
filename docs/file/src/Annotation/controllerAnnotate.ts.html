@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/Annotation/controllerAnnotate.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"><meta property="twitter:image" content="./logo.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#annotation">Annotation</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#synonyms">Synonyms</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/Annotation/controllerAnnotate.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { Pool } from &apos;pg&apos;;
+import annotate from &apos;./annotate&apos;;
+import * as fs from &apos;fs&apos;;
+import * as Ajv from &apos;ajv&apos;;
+const ajv = new Ajv({ allErrors: true, verbose: true });
+
+// --------------------------
+
+const schema: any = JSON.parse(fs.readFileSync(&apos;./schemas/get-schema.json&apos;, &apos;utf8&apos;));
+
+export interface GetOntologyInput {
+  term: string;
+  field?: string;
+  force?: boolean;
+}
+
+export async function get({
+  payload,
+  _postgres,
+  _selectFromDb = selectFromDb,
+  _getAnnotation = getAnnotation,
+  _ajv = ajv,
+  _schema = schema
+ }: {
+    payload: GetOntologyInput,
+    _postgres: Pool,
+    _selectFromDb?: typeof selectFromDb,
+    _getAnnotation?: typeof getAnnotation,
+    _ajv?: typeof ajv,
+    _schema?: typeof schema
+  }): Promise&lt;any[]&gt; {
+
+  const valid = _ajv.validate(_schema, payload);
+  if (!valid) {
+    console.log(_ajv.errors);
+    throw new Error(&apos;Payload schema error&apos;);
+  }
+
+  let result = await _selectFromDb({ _postgres, _term: payload.term });
+
+  // if result undefined (ie. no rows found)
+  if (result[0] === undefined &amp;&amp; payload.field) {
+    const { field, term } = payload;
+    const stored = await _getAnnotation({ payload: { field, term }, _postgres });
+    result = await _selectFromDb({ _postgres, _term: payload.term });
+  }
+  return result;
+}
+
+// --------------------------
+
+export async function selectFromDb({
+  _postgres,
+  _term
+}: {
+    _postgres: Pool,
+    _term: string
+  }) {
+  const query = {
+    text:
+    `SELECT
+    original_terms.ontology_uid,
+    original_terms.confidence,
+    ontology_terms.ontology_uri,
+    ontology_terms.ontology_term,
+    ontology_terms.source_uri,
+    ontology_terms.short_name
+    FROM original_terms
+    INNER JOIN ontology_terms
+    ON ontology_terms.id = original_terms.ontology_uid
+    WHERE original = $1`,
+    values: [_term]
+  };
+
+  const result = await _postgres.query(query)
+    .then(data =&gt; data.rows);
+
+  return result;
+}
+
+// ------------------------
+
+export async function getAnnotation({
+  payload,
+  _postgres,
+  _annotate = annotate
+  }: {
+    payload: { field: string, term: string },
+    _postgres: Pool
+    _annotate?: typeof annotate
+  }) {
+
+  // get ontology term from zooma
+  const standardised = await _annotate({ payload })
+    .then(data =&gt; data[0]);
+
+  if (standardised) {
+    const insertOntologyTerm = {
+      text: &apos;INSERT INTO ontology_terms(ontology_uri, ontology_term, source_uri, short_name) VALUES($1, $2, $3, $4) RETURNING * &apos;,
+      values: [standardised.iri, standardised.term, standardised.source, standardised.short_name]
+    };
+
+    // insert standardised terms into table, return the row id to link to original term
+    const ontology_uid = await _postgres.query(insertOntologyTerm)
+      .then((data: any) =&gt; data.rows[0].id);
+
+    const createQuery = {
+      text: &apos;INSERT INTO original_terms(original, ontology_uid, confidence) VALUES($1, $2, $3)&apos;,
+      values: [payload.term, ontology_uid, standardised.confidence]
+    };
+
+    await _postgres.query(createQuery);
+  }
+}
+
+// --------------------------
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

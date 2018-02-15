@@ -15,7 +15,8 @@
     "make": "rm -fr dist && tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "test": "nyc --reporter lcov tape $(find dist -name '*.spec.js' ! -name 'index.js') | tap-spec",
-    "coverage": "nyc check-coverage --lines 70 --functions 70 --branches 60"
+    "coverage": "nyc check-coverage --lines 70 --functions 70 --branches 60",
+    "documentation": "./node_modules/.bin/esdoc"
   },
   "nyc": {
     "extension": [
@@ -25,6 +26,36 @@
     "exclude": [
       "**/*.spec.js",
       "**/*.d.ts"
+    ]
+  },
+  "esdoc": {
+    "source": "./src",
+    "destination": "./docs",
+    "plugins": [
+      {
+        "name": "esdoc-standard-plugin",
+        "option": {
+          "brand": {
+            "logo": "./logo.png",
+            "title": "Metis",
+            "description": "Metis Documentation",
+            "repository": "https://github.com/repositive/metis/",
+            "image": "./logo.png"
+          },
+          "test": {
+            "source": "./dist",
+            "interfaces": ["describe", "it", "context", "suite", "test"],
+            "includes": ["(spec|Spec|test|Test)\\.js$"]
+          }
+        }
+        
+      },
+      {
+        "name": "esdoc-typescript-plugin",
+        "option": {
+          "enable": true
+        }
+      }
     ]
   },
   "author": "Repositive Team",
@@ -53,6 +84,9 @@
     "@types/request-promise": "^4.1.37",
     "@types/sinon": "^2.3.3",
     "@types/tape": "^4.2.30",
+    "esdoc": "^1.0.4",
+    "esdoc-standard-plugin": "^1.0.0",
+    "esdoc-typescript-plugin": "^1.0.0",
     "husky": "^0.14.3",
     "nodemon": "^1.11.0",
     "nyc": "^11.1.0",

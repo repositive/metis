@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/controllerSynonyms.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/controllerSynonyms.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { Pool } from &apos;pg&apos;;
+import { synonyms, allSynonyms } from &apos;./synonyms&apos;;
+import * as fs from &apos;fs&apos;;
+import * as Ajv from &apos;ajv&apos;;
+import * as R from &apos;ramda&apos;;
+
+const ajv = new Ajv({ allErrors: true, verbose: true });
+
+// --------------------------
+
+const schema: any = JSON.parse(fs.readFileSync(&apos;./schemas/synonyms-is-valid.json&apos;, &apos;utf8&apos;));
+
+/**
+ * @desc This method is linked to the action iris.synonyms.get. It checks in the database whether a list of synonyms for the given symbol exists.
+ * If it does not exist, a request is send to the HUGO API at gennames.org to retrieve the required synonyms.
+ * The response from the HUGO is stored to the database and retruned.
+ *
+ * @param {String} payload - contains the requested symbol as a string.
+ * @param {Object} _postgres - Pass postgres element to work with database.
+ * @returns {String} A list of synonyms for the requested symbol.
+ */
+
+export async function getSynonyms({
+  payload,
+  _postgres,
+  _selectSynonymsFromDb = selectSynonymsFromDb,
+  _deleteSynonymsFromDb = deleteSynonymsFromDb,
+  _updateSynonyms = updateSynonyms,
+  _synonyms = synonyms,
+  _ajv = ajv,
+  _schema = schema
+ }: {
+    payload: { symbol: string },
+    _postgres: Pool,
+    _selectSynonymsFromDb?: typeof selectSynonymsFromDb,
+    _deleteSynonymsFromDb?: typeof deleteSynonymsFromDb,
+    _updateSynonyms?: typeof updateSynonyms,
+    _synonyms?: typeof synonyms,
+    _ajv?: typeof ajv,
+    _schema?: typeof schema
+  }): Promise&lt;any[]&gt; {
+
+  const valid = _ajv.validate(_schema, payload);
+  if (!valid) {
+    console.log(_ajv.errors);
+    throw new Error(&apos;Payload schema error&apos;);
+  }
+
+  let result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
+
+  // if result undefined (ie. no rows found)
+  const { symbol } = payload;
+  if (R.isEmpty(result) &amp;&amp; payload.symbol) {
+
+    await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
+    result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
+  } else if (R.isEmpty(result) &amp;&amp; payload.symbol &amp;&amp; ((Date.now() - result[0].last_update) / (1000 * 60 * 60 * 24)) &gt; 30) { // Update synonyms when last updated 31 days ago.
+    // Delete entry first and trigger update afterwards
+
+    R.map(R.compose(c =&gt;_deleteSynonymsFromDb({_postgres, listSynonyms : c }), R.prop(&apos;list_synonyms&apos;)), result);
+
+    await _updateSynonyms({ payload: { symbol }, _postgres, _synonyms });
+    result = await _selectSynonymsFromDb({ _postgres, _symbol: payload.symbol });
+  }
+  const reduceToListSynonyms = R.pick([&apos;list_synonyms&apos;]);
+  return R.map(reduceToListSynonyms, result);
+}
+
+
+/**
+ * @desc This method is linked to the action iris.synonyms.all and returns all stored lists of synonyms from the database.
+ *
+ * @param {Object} _postgres - Pass postgres element to work with database.
+ * @returns {Promise} A list of all synonym lists in the database.
+ */
+export async function getAllSynonyms({
+  _postgres,
+  _selectAllSynonymsFromDb = selectAllSynonymsFromDb
+ }: {
+    _postgres: Pool,
+    _selectAllSynonymsFromDb?: typeof selectAllSynonymsFromDb
+  }): Promise&lt;any[]&gt; {
+
+  const result = await _selectAllSynonymsFromDb({ _postgres });
+  const reduceToListSynonyms = R.pick([&apos;list_synonyms&apos;]);
+
+  return R.pipe(R.map(reduceToListSynonyms), R.map(R.values))(result);
+}
+
+/**
+ * @desc This method returns the list of synonyms for the provided symbol.
+ *
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @param {String} _symbol - Symbol for which the synonyms are requested.
+ * @returns {Promise} A list of synonyms from the database.
+ */
+export async function selectSynonymsFromDb({
+  _postgres,
+  _symbol
+}: {
+    _postgres: Pool,
+    _symbol: string
+  }) {
+  const query = {
+    text:
+      `SELECT list_synonyms, last_update
+    FROM synonyms
+    INNER JOIN symbols
+    ON synonyms.id = symbols.synonyms_uid
+    WHERE symbols.symbol = $1`,
+    values: [_symbol]
+  };
+
+  const result = _postgres.query(query)
+    .then(data =&gt; data.rows)
+    .catch((err: any) =&gt; {
+      //console.log(&apos;_request error: &apos; + err);
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+
+  return result;
+}
+
+/**
+ * @desc This method returns all lists of synonyms stored in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @returns {Promise} A list of synonyms from the database.
+ */
+export async function selectAllSynonymsFromDb({
+  _postgres
+}: {
+    _postgres: Pool
+  }) {
+  const query = {
+    text:
+      `SELECT list_synonyms FROM synonyms`
+  };
+
+  const result = _postgres.query(query)
+    .then(data =&gt; data.rows)
+    .catch((err: any) =&gt; {
+      //console.log(&apos;_request error: &apos; + err);
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+
+  return result;
+}
+
+/**
+ * @desc This method returns all lists of synonyms stored in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @returns {Promise} A list of synonyms from the database.
+ */
+
+async function updateSynonyms({
+  payload,
+  _postgres,
+  _synonyms = synonyms,
+  _storeSynonyms = storeSynonyms
+  }: {
+    payload: { symbol: string },
+    _postgres: Pool,
+    _synonyms?: typeof synonyms,
+    _storeSynonyms?: typeof storeSynonyms
+  }) {
+
+  // get synonyms from HUGO
+  const listlistSynonyms = await _synonyms({ payload });
+  listlistSynonyms.forEach((listSynonyms: any) =&gt; {
+    _storeSynonyms({ listSynonyms, _postgres });
+  });
+}
+
+/**
+ * @desc This method resets the current content in the database and replaces it with the response from Hugo for all synonyms.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
+export async function populateSynonyms({
+  _postgres,
+  _deleteAllSynonymsFromDb = deleteAllSynonymsFromDb,
+  _storeSynonyms = storeSynonyms,
+  _allSynonyms = allSynonyms
+  }: {
+    _postgres: Pool,
+    _deleteAllSynonymsFromDb?: typeof deleteAllSynonymsFromDb,
+    _storeSynonyms?: typeof storeSynonyms,
+    _allSynonyms?: typeof allSynonyms
+  }) {
+
+  // get synonyms from HUGO
+  _deleteAllSynonymsFromDb({ _postgres });
+  const listlistSynonyms = await _allSynonyms({});
+  listlistSynonyms.forEach((listSynonyms: any) =&gt; {
+    _storeSynonyms({ listSynonyms, _postgres });
+  });
+
+}
+
+/**
+ * @desc This method stores synonyms and symbols in the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
+async function storeSynonyms({
+  listSynonyms,
+  _postgres
+  }: {
+    listSynonyms: any,
+    _postgres: Pool
+  }) {
+
+  if (listSynonyms &amp;&amp; listSynonyms.length &gt;= 1) {
+    const convertedListSynonyms = JSON.stringify(listSynonyms).replace(&apos;[&apos;, &apos;\[&apos;).replace(&apos;]&apos;, &apos;\]&apos;).replace(&apos;\&apos;&apos;, &apos;&apos;);
+    const insertSynonyms = {
+      text: &apos;INSERT INTO synonyms(list_synonyms, last_update) VALUES($1, CURRENT_TIMESTAMP) RETURNING * &apos;,
+      values: [convertedListSynonyms]
+    };
+
+    const synonyms_uid = await _postgres.query(insertSynonyms)
+      .then((data: any) =&gt; data.rows[0].id)
+      .catch((err: any) =&gt; {
+        //console.log(&apos;_request error: &apos; + err);
+        throw new Error(&apos;_request error: &apos; + err);
+      });
+
+    listSynonyms.forEach(function(synonymToken : string) {
+      const createQuery = {
+        text: &apos;INSERT INTO symbols(synonyms_uid, symbol) VALUES($1, $2)&apos;,
+        values: [synonyms_uid, synonymToken]
+      };
+
+      _postgres.query(createQuery).catch((err: any) =&gt; {
+        //console.log(&apos;_request error: &apos; + err);
+        throw new Error(&apos;_request error: &apos; + err);
+      });
+    });
+  }
+}
+
+/**
+ * @desc This method deletes synonyms and symbols from the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ * @param {Promise} listSynonyms - The list of synonyms, which has to be deleted from the database.
+ */
+export async function deleteSynonymsFromDb({
+  _postgres,
+  listSynonyms
+}: {
+    _postgres: Pool,
+    listSynonyms: any
+  }) {
+
+  const stringListSynonyms = listSynonyms.replace(&apos;[&apos;, &apos;(&apos;).replace(&apos;]&apos;, &apos;)&apos;).replace(/\&quot;/g, &apos;\&apos;&apos;);
+  const queryDeleteSymbols = {
+    text: `DELETE FROM symbols WHERE &quot;symbol&quot; IN `.concat(stringListSynonyms)
+  };
+
+  _postgres.query(queryDeleteSymbols)
+  .catch((err: any) =&gt; {
+    //console.log(&apos;_request error: &apos; + err);
+    throw new Error(&apos;_request error: &apos; + err);
+  });
+
+  const queryDeleteSynonyms = {
+    text:
+      `DELETE FROM synonyms WHERE list_synonyms = $1`,
+    values: [listSynonyms]
+  };
+
+  _postgres.query(queryDeleteSynonyms)
+  .catch((err: any) =&gt; {
+    //console.log(&apos;_request error: &apos; + err);
+    throw new Error(&apos;_request error: &apos; + err);
+  });
+}
+/**
+ * @desc This method deletes all synonyms and symbols from the database.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
+function deleteAllSynonymsFromDb({
+  _postgres
+}: {
+    _postgres: Pool
+  }) {
+  const queryDeleteSymbols = {
+    text: `DELETE FROM symbols`
+  };
+
+  _postgres.query(queryDeleteSymbols)
+  .catch((err: any) =&gt; {
+    //console.log(&apos;_request error: &apos; + err);
+    throw new Error(&apos;_request error: &apos; + err);
+  });
+
+  const queryDeleteSynonyms = {
+    text:
+      `DELETE FROM synonyms`
+  };
+
+  _postgres.query(queryDeleteSynonyms)
+  .catch((err: any) =&gt; {
+    //console.log(&apos;_request error: &apos; + err);
+    throw new Error(&apos;_request error: &apos; + err);
+  });
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

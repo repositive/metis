@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/controllerSynonyms.spec.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/controllerSynonyms.spec.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as test from &apos;tape&apos;;
+import { Test } from &apos;tape&apos;;
+import { stub } from &apos;sinon&apos;;
+import { Pool } from &apos;pg&apos;;
+
+import * as fs from &apos;fs&apos;;
+import * as Ajv from &apos;ajv&apos;;
+
+import { getSynonyms, populateSynonyms, getAllSynonyms, selectSynonymsFromDb, selectAllSynonymsFromDb, deleteSynonymsFromDb } from &apos;./controllerSynonyms&apos;;
+
+//-------------------------------
+
+test(&apos;Testing controller&apos;, (t: Test) =&gt; {
+  t.test(&apos;Test get function when symbol and synonyms list are in database&apos;, async function (st: Test) {
+
+    const _postgres: any = { query: stub().returns(Promise.resolve()) };
+    const payload = { symbol: &apos;ERBB2&apos; };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, &apos;validate&apos;).returns(true);
+    const _schema = stub();
+    const mockResult = [{
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    }];
+    const _selectSynonymsFromDb = stub().returns(Promise.resolve(mockResult));
+
+    const mockResultSynonyms = [&apos;ERBB2&apos;,&apos;NEU&apos;,&apos;HER-2&apos;,&apos;CD340&apos;,&apos;HER2&apos;];
+    const _synonyms = stub().returns(Promise.resolve(mockResultSynonyms));
+
+    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _synonyms, _ajv, _schema })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_ajv.validate as any).called, &apos;It calls validate once&apos;);
+    st.assert((_selectSynonymsFromDb as any).calledOnce, &apos;It calls _selectSynonymsFromDb&apos;);
+    st.false((_synonyms as any).calledOnce, &apos;It does not call _synonyms&apos;);
+    st.equals(_selectSynonymsFromDb.getCall(0).args[0]._symbol, &apos;ERBB2&apos;, &apos;_selectSynonymsFromDb is called with the correct symbol&apos;);
+    st.deepEquals(result, mockResult, &apos;It returns the expected result&apos;);
+    st.end();
+
+  });
+
+  t.test(&apos;Test getSynonyms function when term is not in database and not available by HUGO&apos;, async function (st: Test) {
+
+    const _postgres: any = {};
+    const payload = { symbol: &apos;1234&apos; };
+    const _ajv: any = new Ajv();
+    const validateStub = stub(_ajv, &apos;validate&apos;).returns(true);
+    const _schema = stub();
+    const mockResult: any[] = [];
+    const _selectSynonymsFromDb = stub().returns(Promise.resolve(mockResult));
+
+    const mockResultSynonyms: any[] = [];
+    const _synonyms = stub().returns(Promise.resolve(mockResultSynonyms));
+
+    const result = await getSynonyms({ payload, _postgres, _selectSynonymsFromDb, _synonyms, _ajv, _schema })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert(_selectSynonymsFromDb.calledTwice, &apos;It calls selectFromDb twice&apos;);
+    st.equals(_selectSynonymsFromDb.getCall(0).args[0]._symbol, &apos;1234&apos;, &apos;selectFromDb is called with the correct term&apos;);
+    st.assert((_synonyms as any).calledOnce, &apos;It calls synonyms&apos;);
+    st.equals(_synonyms.getCall(0).args[0].payload.symbol, &apos;1234&apos;, &apos;synonyms is called again with the correct term&apos;);
+    st.equals(_selectSynonymsFromDb.getCall(1).args[0]._symbol, &apos;1234&apos;, &apos;selectFromDb is called again with the correct term&apos;);
+    st.same(result, mockResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test getAllSynonyms&apos;, async function (st: Test) {
+    const _postgres: any = {};
+    const mockResult = [{
+      &apos;last_update&apos;:&apos;123&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    },
+    {
+      &apos;last_update&apos;:&apos;456&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;]&apos;
+    }];
+
+    const expectedResult = [
+      [ &apos;[&quot;ERBB2&quot;,&quot;NEU&quot;,&quot;HER-2&quot;,&quot;CD340&quot;,&quot;HER2&quot;]&apos; ], [ &apos;[&quot;ERBB2&quot;,&quot;NEU&quot;,&quot;HER-2&quot;]&apos; ]
+    ];
+
+    const _selectAllSynonymsFromDb = stub().returns(Promise.resolve(mockResult));
+
+    const result = await getAllSynonyms({ _postgres, _selectAllSynonymsFromDb})
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_selectAllSynonymsFromDb).calledOnce, &apos;Trigger postgres call once&apos;);
+    st.deepEquals(result, expectedResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test selectAllSynonymsFromDb&apos;, async function (st: Test) {
+    const mockResult = {
+      rows: [{
+      &apos;last_update&apos;:&apos;123&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    },
+    {
+      &apos;last_update&apos;:&apos;456&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;]&apos;
+    }]};
+
+    const expectedResult = [{
+      &apos;last_update&apos;:&apos;123&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    },
+    {
+      &apos;last_update&apos;:&apos;456&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;]&apos;
+    }];
+
+    const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
+
+    const result = await selectAllSynonymsFromDb({ _postgres })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_postgres.query as any).calledOnce, &apos;Query postgres once&apos;);
+    st.deepEquals(result, expectedResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test selectSynonymsFromDb&apos;, async function (st: Test) {
+    const _symbol = &apos;ERBB2&apos;;
+    const mockResult = {
+      rows: [{
+      &apos;last_update&apos;:&apos;123&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    },
+    {
+      &apos;last_update&apos;:&apos;456&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;]&apos;
+    }]};
+
+    const expectedResult = [{
+      &apos;last_update&apos;:&apos;123&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;,\&quot;CD340\&quot;,\&quot;HER2\&quot;]&apos;
+    },
+    {
+      &apos;last_update&apos;:&apos;456&apos;,
+      &apos;list_synonyms&apos;:&apos;[\&quot;ERBB2\&quot;,\&quot;NEU\&quot;,\&quot;HER-2\&quot;]&apos;
+    }];
+
+    const _postgres: any = { query: stub().returns(Promise.resolve(mockResult)) };
+
+    const result = await selectSynonymsFromDb({ _postgres , _symbol })
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_postgres.query as any).calledOnce, &apos;Query postgres once&apos;);
+    st.deepEquals(result, expectedResult, &apos;It returns the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Test populateSynonyms&apos;, async function (st: Test) {
+
+    const _postgres: any = { query: stub().returns(Promise.resolve()) };
+
+    const mockResult = [ [ &apos;A1BG-AS1&apos;, &apos;FLJ23569&apos; ],
+        [ &apos;A1CF&apos;, &apos;ACF&apos;, &apos;ASP&apos;, &apos;ACF64&apos;, &apos;ACF65&apos;, &apos;APOBEC1CF&apos; ],
+        [ &apos;A2M&apos;, &apos;FWP007&apos;, &apos;S863-7&apos;, &apos;CPAMD5&apos; ],
+        [ &apos;ABAT&apos;, &apos;GABAT&apos; ],
+        [ &apos;ABCA1&apos;, &apos;TGD&apos; ] ];
+
+    const _allSynonyms: any = stub().returns(Promise.resolve(mockResult));
+
+    await populateSynonyms({ _postgres, _allSynonyms })
+    .catch(function(e) {
+      st.ok(e, &apos;TypeError: Cannot read property \&apos;0\&apos; of undefined&apos;);
+    });
+
+    st.ok((_postgres.query as any).called, &apos;true&apos;);
+
+    st.end();
+  });
+
+  t.test(&apos;Test deleteSynonymsFromDb&apos;, async function (st: Test) {
+    const _postgres: any = { query: stub().returns(Promise.resolve()) };
+
+    const listSynonyms = &apos;(&quot;ERBB2&quot;,&quot;NEU&quot;,&quot;HER-2&quot;,&quot;CD340&quot;,&quot;HER2&quot;)&apos;;
+
+    const result = await deleteSynonymsFromDb({ _postgres, listSynonyms})
+      .catch((err) =&gt; {
+        st.notOk(err, &apos;Function should not error&apos;);
+      });
+
+    st.assert((_postgres.query as any).calledTwice, &apos;Trigger postgres call twice&apos;);
+    st.end();
+  });
+
+  t.end();
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

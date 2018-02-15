@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/Synonyms/synonyms.spec.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"><meta property="twitter:image" content="./logo.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#annotation">Annotation</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#synonyms">Synonyms</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/Synonyms/synonyms.spec.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as test from &apos;tape&apos;;
+import { Test } from &apos;tape&apos;;
+import { stub } from &apos;sinon&apos;;
+import * as fs from &apos;fs&apos;;
+import { synonyms, allSynonyms } from &apos;./synonyms&apos;;
+
+//-------------------------------
+
+test(&apos;Testing getSynonym service&apos;, (t: Test) =&gt; {
+  t.test(&apos;Returns synonyms&apos;, async function (st: Test) {
+
+    const symbol: string = &apos;ERBB2&apos;;
+    const synonymsResult = [ [&apos;ERBB2&apos;, &apos;NEU&apos;, &apos;HER-2&apos;, &apos;CD340&apos;, &apos;HER2&apos;] ];
+
+    const requestResponse: any = {
+      &apos;response&apos;: {
+        &apos;docs&apos;: [{
+          &apos;symbol&apos;: &apos;ERBB2&apos;,
+          &apos;name&apos;: &apos;erb-b2 receptor tyrosine kinase 2&apos;,
+          &apos;alias_symbol&apos;: [
+            &apos;NEU&apos;,
+            &apos;HER-2&apos;,
+            &apos;CD340&apos;,
+            &apos;HER2&apos;
+          ],
+          &apos;alias_name&apos;: [
+            &apos;neuro/glioblastoma derived oncogene homolog&apos;,
+            &apos;human epidermal growth factor receptor 2&apos;
+          ]
+        }]
+      }
+    };
+
+    const _request: any = stub().returns(Promise.resolve(requestResponse));
+
+    st.equals(typeof synonyms, &apos;function&apos;, &apos;The module exports a function called synonyms&apos;);
+
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
+        //console.log(&apos;got data&apos;, data);
+        return data;
+      }).catch((err: any) =&gt; {
+        console.log(&apos;API call failed...&apos; + err);
+        st.notOk(err, &apos;There is an error&apos;);
+      });
+    st.assert(result instanceof Object, &apos;Returns an object&apos;);
+    st.deepEquals(result, synonymsResult, &apos;The final result is equal to the expected result&apos;);
+    st.end();
+  });
+
+  //----------------------------
+
+  t.test(&apos;Returns synonyms via alias&apos;, async function (st: Test) {
+
+    const symbol: string = &apos;HER2&apos;;
+    const synonymsResult = [ [&apos;ERBB2&apos;, &apos;NEU&apos;, &apos;HER-2&apos;, &apos;CD340&apos;, &apos;HER2&apos;] ];
+
+    const requestResponse: any = {
+      &apos;response&apos;: {
+        &apos;docs&apos;: [{
+          &apos;symbol&apos;: &apos;ERBB2&apos;,
+          &apos;name&apos;: &apos;erb-b2 receptor tyrosine kinase 2&apos;,
+          &apos;alias_symbol&apos;: [
+            &apos;NEU&apos;,
+            &apos;HER-2&apos;,
+            &apos;CD340&apos;,
+            &apos;HER2&apos;
+          ],
+          &apos;alias_name&apos;: [
+            &apos;neuro/glioblastoma derived oncogene homolog&apos;,
+            &apos;human epidermal growth factor receptor 2&apos;
+          ]
+        }]
+      }
+    };
+
+    const _request: any = stub().returns(Promise.resolve(requestResponse));
+
+    st.equals(typeof synonyms, &apos;function&apos;, &apos;The module exports a function called synonyms&apos;);
+
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
+        //console.log(&apos;got data&apos;, data);
+        return data;
+      }).catch((err: any) =&gt; {
+        console.log(&apos;API call failed...&apos; + err);
+        st.notOk(err, &apos;There is an error&apos;);
+      });
+    st.assert(result instanceof Object, &apos;Returns an object&apos;);
+    st.deepEquals(result, synonymsResult, &apos;The final result is equal to the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Fail to find a synonym&apos;, async function (st: Test) {
+
+    const symbol: string = &apos;zzzzyzzz&apos;;
+    const synonymsResult: any[] = [];
+
+    const requestResponse: any = {
+      &apos;response&apos;: {
+        &apos;responseHeader&apos;: {
+          &apos;status&apos;: 0,
+          &apos;QTime&apos;: 1
+        }
+      }
+    };
+
+    const _request: any = stub().returns(Promise.resolve(requestResponse));
+
+    st.equals(typeof synonyms, &apos;function&apos;, &apos;The module exports a function called synonyms&apos;);
+
+    const result = await synonyms({ payload: { symbol }, _request })
+      .then(function (data: any) {
+        //console.log(&apos;got data&apos;, data);
+        return data;
+      }).catch((err: any) =&gt; {
+        console.log(&apos;API call failed...&apos; + err);
+        st.notOk(err, &apos;There is an error&apos;);
+      });
+    st.assert(result instanceof Object, &apos;Returns an object&apos;);
+    st.deepEquals(result, synonymsResult, &apos;The final result is equal to the expected result&apos;);
+    st.end();
+  });
+
+  t.test(&apos;Returns allSynonyms&apos;, async function (st: Test) {
+    const synonymsResult = [[&apos;ERBB2&apos;, &apos;NEU&apos;, &apos;HER-2&apos;, &apos;CD340&apos;, &apos;HER2&apos;],
+                            [&apos;A1CF&apos;,&apos;ACF&apos;,&apos;ASP&apos;,&apos;ACF64&apos;,&apos;ACF65&apos;,&apos;APOBEC1CF&apos;]];
+
+    const requestResponse: any = {
+      &apos;response&apos;: {
+        &apos;docs&apos;: [{
+          &apos;symbol&apos;: &apos;ERBB2&apos;,
+          &apos;name&apos;: &apos;alpha-1-B glycoprotein&apos;,
+          &apos;alias_symbol&apos;: [
+            &apos;NEU&apos;,
+            &apos;HER-2&apos;,
+            &apos;CD340&apos;,
+            &apos;HER2&apos;
+          ],
+          &apos;alias_name&apos;: [
+            &apos;neuro/glioblastoma derived oncogene homolog&apos;,
+            &apos;human epidermal growth factor receptor 2&apos;
+          ]
+        },
+        {
+          &apos;symbol&apos;: &apos;A1CF&apos;,
+          &apos;name&apos;: &apos;erb-b2 receptor tyrosine kinase 2&apos;,
+          &apos;alias_symbol&apos;: [
+            &apos;ACF&apos;,
+            &apos;ASP&apos;,
+            &apos;ACF64&apos;,
+            &apos;ACF65&apos;,
+            &apos;APOBEC1CF&apos;
+          ],
+          &apos;location&apos;: &apos;10q11.23&apos;
+        }]
+      }
+    };
+
+    const _request: any = stub().returns(Promise.resolve(requestResponse));
+
+    st.equals(typeof allSynonyms, &apos;function&apos;, &apos;The module exports a function called allSynonyms&apos;);
+
+    const result = await allSynonyms({ _request })
+      .then(function (data: any) {
+        //console.log(&apos;got data&apos;, data);
+        return data;
+      }).catch((err: any) =&gt; {
+        console.log(&apos;API call failed...&apos; + err);
+        st.notOk(err, &apos;There is an error&apos;);
+      });
+    st.assert(result instanceof Object, &apos;Returns an object&apos;);
+    st.deepEquals(result, synonymsResult, &apos;The final result is equal to the expected result&apos;);
+    st.end();
+  });
+
+  t.end();
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
