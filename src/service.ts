@@ -3,8 +3,8 @@ import { inject } from '@repositive/iris';
 
 import * as config from 'config';
 
-import { get } from './controllerAnnotate';
-import { getSynonyms, populateSynonyms, getAllSynonyms } from './controllerSynonyms';
+import { get } from './Annotation/controllerAnnotate';
+import { getSynonyms, populateSynonyms, getAllSynonyms } from './Synonyms/controllerSynonyms';
 
 
 import { Pool } from 'pg';

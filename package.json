@@ -32,20 +32,22 @@
     "source": "./src",
     "destination": "./docs",
     "plugins": [
-      {"name": "esdoc-standard-plugin",
-      "option": {
-         "brand": {
+      {
+        "name": "esdoc-standard-plugin",
+        "option": {
+          "brand": {
             "logo": "./logo.png",
             "title": "Metis",
             "description": "Metis Documentation",
             "repository": "https://github.com/repositive/metis/"
-         }
-      }
-    }
-      ,
+          }
+        }
+      },
       {
         "name": "esdoc-typescript-plugin",
-        "option": {"enable": true}
+        "option": {
+          "enable": true
+        }
       }
     ]
   },

@@ -12,8 +12,8 @@ const schema: any = JSON.parse(fs.readFileSync('./schemas/synonyms-is-valid.json
 
 /**
  * @desc This method is linked to the action iris.synonyms.get. It checks in the database whether a list of synonyms for the given symbol exists.
- * If it does not exist, a request is send to the HUGO API at gennames.org to retrieve the required synonyms.
- * The response from the HUGO is stored to the database and retruned.
+ * If it does not exist or the last update is older than 30 days, a request is send to the HUGO API at gennames.org to retrieve the required synonyms.
+ * The response from the HUGO is stored to the database and returned.
  *
  * @param {String} payload - contains the requested symbol as a string.
  * @param {Object} _postgres - Pass postgres element to work with database.
@@ -193,6 +193,7 @@ export async function populateSynonyms({
   listlistSynonyms.forEach((listSynonyms: any) => {
     _storeSynonyms({ listSynonyms, _postgres });
   });
+  console.log('Database populated!');
 
 }
 
