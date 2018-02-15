@@ -11,9 +11,7 @@ const ajv = new Ajv({ allErrors: true, verbose: true });
 const schema: any = JSON.parse(fs.readFileSync('./schemas/synonyms-is-valid.json', 'utf8'));
 
 /**
- * @desc This method is linked to the action iris.synonyms.get.
- * It checks in the database whether a list of synonyms for the given symbol exists.
- *
+ * @desc This method is linked to the action iris.synonyms.get. It checks in the database whether a list of synonyms for the given symbol exists.
  * If it does not exist, a request is send to the HUGO API at gennames.org to retrieve the required synonyms.
  * The response from the HUGO is stored to the database and retruned.
  *
@@ -73,7 +71,7 @@ export async function getSynonyms({
  * @desc This method is linked to the action iris.synonyms.all and returns all stored lists of synonyms from the database.
  *
  * @param {Object} _postgres - Pass postgres element to work with database.
- * @returns {String} A list of all synonym lists in the database.
+ * @returns {Promise} A list of all synonym lists in the database.
  */
 export async function getAllSynonyms({
   _postgres,
@@ -94,7 +92,7 @@ export async function getAllSynonyms({
  *
  * @param {Object} _postgres - Pass postgres element to access the database.
  * @param {String} _symbol - Symbol for which the synonyms are requested.
- * @returns {String} A list of synonyms from the database.
+ * @returns {Promise} A list of synonyms from the database.
  */
 export async function selectSynonymsFromDb({
   _postgres,
@@ -126,7 +124,7 @@ export async function selectSynonymsFromDb({
 /**
  * @desc This method returns all lists of synonyms stored in the database.
  * @param {Object} _postgres - Pass postgres element to access the database.
- * @returns {String} A list of synonyms from the database.
+ * @returns {Promise} A list of synonyms from the database.
  */
 export async function selectAllSynonymsFromDb({
   _postgres
@@ -151,7 +149,7 @@ export async function selectAllSynonymsFromDb({
 /**
  * @desc This method returns all lists of synonyms stored in the database.
  * @param {Object} _postgres - Pass postgres element to access the database.
- * @returns {String} A list of synonyms from the database.
+ * @returns {Promise} A list of synonyms from the database.
  */
 
 async function updateSynonyms({
@@ -217,7 +215,6 @@ async function storeSynonyms({
       values: [convertedListSynonyms]
     };
 
-    // insert standardised terms into table, return the row id to link to original term
     const synonyms_uid = await _postgres.query(insertSynonyms)
       .then((data: any) => data.rows[0].id)
       .catch((err: any) => {
@@ -242,7 +239,7 @@ async function storeSynonyms({
 /**
  * @desc This method deletes synonyms and symbols from the database.
  * @param {Object} _postgres - Pass postgres element to access the database.
- * @param {JSON} listSynonyms - The list of synonyms, which has to be deleted from the database.
+ * @param {Promise} listSynonyms - The list of synonyms, which has to be deleted from the database.
  */
 export async function deleteSynonymsFromDb({
   _postgres,

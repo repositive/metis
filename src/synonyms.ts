@@ -10,7 +10,7 @@ import * as R from 'ramda';
  * If it does not retrieve the synonyms via the standard symbol, the alias symbol is used to retrieve results.
  *
  * @param {String} payload - contains the requested symbol as a string.
- * @returns {JSON} A list of synonyms for the requested symbol.
+ * @returns {Promise} A list of synonyms for the requested symbol.
  */
 export async function synonyms({
    payload,
@@ -48,7 +48,7 @@ export async function synonyms({
 
 /**
  * @desc This method sends a request to the HUGO API at gennames.org to retrieve all symbols and corresponding synonyms.
- * @returns {JSON} All lists of synonyms provided by HUGO.
+ * @returns {Promise} All lists of synonyms provided by HUGO.
  */
 export async function allSynonyms({
  _request = request
@@ -79,7 +79,7 @@ export async function allSynonyms({
  * Example: https://rest.genenames.org/fetch/alias_symbol/HER-2
  *
  * @param {JSON} payload - contains the requested symbol as a string.
- * @returns {JSON} A list of synonyms for the requested symbol.
+ * @returns {String[]} A list of synonyms for the requested symbol.
  */
 
 function aliasSynonyms({
@@ -113,7 +113,7 @@ function aliasSynonyms({
  * @desc This helper method reduces the HUGO response to the needed format and is therefore called by all request functions.
  *
  * @param {JSON} - Response from HUGO
- * @returns {JSON} A consolidated json of synonyms
+ * @returns {String[]} A consolidated json of synonyms
  */
 function consolidateResult({
   response
