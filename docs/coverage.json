@@ -1,0 +1,58 @@
+{
+  "coverage": "64.28%",
+  "expectCount": 28,
+  "actualCount": 18,
+  "files": {
+    "src/Annotation/annotate-schema.spec.ts": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        5,
+        8
+      ]
+    },
+    "src/Annotation/annotate.ts": {
+      "expectCount": 2,
+      "actualCount": 1,
+      "undocumentLines": [
+        4
+      ]
+    },
+    "src/Annotation/controllerAnnotate.ts": {
+      "expectCount": 5,
+      "actualCount": 3,
+      "undocumentLines": [
+        4,
+        6
+      ]
+    },
+    "src/Synonyms/controllerSynonyms.ts": {
+      "expectCount": 11,
+      "actualCount": 9,
+      "undocumentLines": [
+        5,
+        7
+      ]
+    },
+    "src/Synonyms/synonyms-schema.spec.ts": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        5,
+        8
+      ]
+    },
+    "src/Synonyms/synonyms.ts": {
+      "expectCount": 4,
+      "actualCount": 4,
+      "undocumentLines": []
+    },
+    "src/service.ts": {
+      "expectCount": 2,
+      "actualCount": 1,
+      "undocumentLines": [
+        7
+      ]
+    }
+  }
+}

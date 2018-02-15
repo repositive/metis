@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">Home | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"><meta property="twitter:image" content="./logo.png"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  <a href="test.html" data-ice="testLink">Test</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#annotation">Annotation</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#synonyms">Synonyms</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="metis">Metis</h1><p>Metis is the service that annotates datasets with ontology terms using the Zooma application developed by the SPOT team at EBI. Metis is also able to retrieve synonyms for an ontology term / ontology ID.</p>
+<p>Metis is named after the ancient Greek Titaness of good counsel, advice, planning, cunning, craftiness, and wisdom [<a href="http://greekmythology.wikia.com/wiki/Metis">1</a>, <a href="https://en.wikipedia.org/wiki/Metis_(mythology">2</a>)].
+It takes a field and term and responds with ontology terms for &apos;assay&apos;/&apos;technology&apos;/&apos;tissue&apos;/&apos;disease&apos; fields.</p>
+<ol>
+<li><a href="http://greekmythology.wikia.com/wiki/Metis">http://greekmythology.wikia.com/wiki/Metis</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Metis_(mythology">https://en.wikipedia.org/wiki/Metis_(mythology)</a>)</li>
+</ol>
+<h3 id="update-datasets-with-ontology-terms">Update Datasets with Ontology Terms</h3><p>Metis uses Iris to register a <code>action.annotate.get</code> pattern.</p>
+<p>The ingestion payload must be in the <a href="schemas/get-schema.json">format</a>:</p>
+<pre><code class="lang-ts"><code class="source-code prettyprint">type Payload = {
+  term: string;
+  field?: string;
+  force?: boolean;
+}</code>
+</code></pre>
+<p>The response is always an array of matched terms:</p>
+<pre><code class="lang-ts"><code class="source-code prettyprint">type Response = [{
+  term: string; // The standard term matched
+  iri: string; // The Ontology Term IRI
+  confidence: number; // How likely it is that the match is correct
+  source: string; // The matched ontoloty URL
+  short_name: string; // The matched ontology name identifier.
+}]</code>
+</code></pre>
+<h3 id="update-datasets-by-single-list-of-synonyms">Update Datasets by single list of Synonyms</h3><p>Metis uses Iris to register a <code>action.synonyms.get</code> pattern.</p>
+<p>The ingestion payload must be in the <a href="schemas/synonyms-is-valid.json">format</a>:</p>
+<pre><code class="lang-ts"><code class="source-code prettyprint">type Payload = {
+  symbol: string;
+}</code>
+</code></pre>
+<p>The response is always an array of matched terms:</p>
+<pre><code class="lang-ts"><code class="source-code prettyprint">type Response = [{
+  list_synonyms: string; // A list of all synonyms retrieved via HUGO
+}]</code>
+</code></pre>
+<h3 id="populate-datasets-with-synonyms">Populate Datasets with Synonyms</h3><p>Metis uses Iris to register a <code>action.annotate.populate</code> pattern.</p>
+<h3 id="return-list-of-all-lists-of-synonyms">Return list of all lists of Synonyms</h3><p>Metis uses Iris to register a <code>action.annotate.populate</code> pattern.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>origin/master</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+<h2 id="setting-up-the-database">Setting up the database</h2><p>Metis uses postgres to store a lookup table and accelerate the process of returning existing results from previous queries. To setup the database create a new  database called <code>metis</code> and execute <a href="setup.sql"><code>setup.sql</code></a>.</p>
+<h2 id="about-docker-compose">About Docker Compose</h2><p>The current version of <a href="https://github.com/repositive/iris-js">Iris</a> requires an AMQP server. The docker-compose comes preconfigured to connect to one out of the box. You&apos;ll need to run an instance yourself and attach it to the network rabbit, and to the postgres database. For this purpose please use the devops service:</p>
+<p><strong>Manual approach:</strong>
+<strong>Create the postgres network</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ docker network create postgres</code>
+</code></pre>
+<p><strong>Run a postgres process</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ docker run --name=postgres --network=postgres -p 5432:5432 -d registry.repositive.io:5000/postgres-data</code>
+</code></pre>
+<p><strong>Create the rabbit network</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ docker network create rabbit</code>
+</code></pre>
+<p><strong>Run a rabbitmq process</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ docker run --name=rabbit --network=rabbit -p 5672:5672 -p 15672:15672 -d rabbitmq:3-management</code>
+</code></pre>
+<p><strong>Use devops service to start postgres network and rabbit network:</strong>
+Open the devops service</p>
+<p><strong>Create postgres network</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ cd development-environment/pdx/infra
+$ docker-compose up -d postgres</code>
+</code></pre>
+<p><strong>Create rabbit network</strong></p>
+<pre><code class="lang-bash"><code class="source-code prettyprint">$ cd development-environment/pdx/infra
+$ docker-compose up -d rabbit</code>
+</code></pre>
+<p>Now postgres and rabbit are running!</p>
+<p>Please return to the metis file system.</p>
+<p>If you run  <code>$ docker-compose up</code> now you should be able to see this service running using the iris cli <code>$ iris status</code></p>
+<h2 id="notes">Notes</h2><p>The repository has a <code>precommit</code> hook that will trigger linter for each commit. You can check it in the scripts section of the <code>package.json</code></p>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

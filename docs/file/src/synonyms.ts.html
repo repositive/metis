@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/synonyms.ts | Metis</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="Metis Documentation"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Metis"><meta property="twitter:description" content="Metis Documentation"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./" style="display: flex; align-items: center;"><img src="./image/brand_logo.png" style="width:34px;"></a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/repositive/metis/"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-annotate">annotate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-get">get</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAnnotation">getAnnotation</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectFromDb">selectFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-deleteSynonymsFromDb">deleteSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllSynonyms">getAllSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getSynonyms">getSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-populateSynonyms">populateSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectAllSynonymsFromDb">selectAllSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-selectSynonymsFromDb">selectSynonymsFromDb</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-init">init</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-allSynonyms">allSynonyms</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-synonyms">synonyms</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/synonyms.ts</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as request from &apos;request-promise&apos;;
+import * as fs from &apos;fs&apos;;
+import * as Ajv from &apos;ajv&apos;;
+
+import * as R from &apos;ramda&apos;;
+
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve the required synonyms.
+ * Example: https://rest.genenames.org/fetch/symbol/ERBB2
+ * If it does not retrieve the synonyms via the standard symbol, the alias symbol is used to retrieve results.
+ *
+ * @param {String} payload - contains the requested symbol as a string.
+ * @returns {Promise} A list of synonyms for the requested symbol.
+ */
+export async function synonyms({
+   payload,
+  _request = request
+  }: {
+    payload: { symbol: string },
+    _request?: typeof request
+  }) {
+
+  const data: any = payload;
+  const symbol: string = payload.symbol;
+  const url_symbol = `https://rest.genenames.org/fetch/symbol/${symbol}`;
+
+  const options_symbol = {
+    method: &apos;GET&apos;,
+    uri: url_symbol as string,
+    json: true
+  };
+
+  const result: any = await _request(options_symbol)
+    .then((response: any) =&gt; {
+      if (!R.isNil(response.docs)) {
+        return consolidateResult(response);
+      } else {
+        return aliasSynonyms({ symbol_alias: symbol, _request });
+      }
+    })
+    .catch((err: any) =&gt; {
+      //console.log(&apos;_request error: &apos; + err);
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+
+  return result;
+}
+
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve all symbols and corresponding synonyms.
+ * @returns {Promise} All lists of synonyms provided by HUGO.
+ */
+export async function allSynonyms({
+ _request = request
+ }: {
+    _request?: typeof request
+  }) {
+  const url_all = &apos;http://rest.genenames.org/fetch/status/Approved&apos;;
+
+  const options_all = {
+    method: &apos;GET&apos;,
+    uri: url_all as string,
+    json: true
+  };
+
+  const json_all: any = _request(options_all)
+    .then((response: any) =&gt; {
+      return consolidateResult(response);
+    })
+    .catch((err: any) =&gt; {
+      //console.log(&apos;_request error: &apos; + err);
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+  return json_all;
+}
+
+/**
+ * @desc This method sends a request to the HUGO API at gennames.org to retrieve the required synonyms via the aliases.
+ * Example: https://rest.genenames.org/fetch/alias_symbol/HER-2
+ *
+ * @param {JSON} payload - contains the requested symbol as a string.
+ * @returns {String[]} A list of synonyms for the requested symbol.
+ */
+
+function aliasSynonyms({
+  symbol_alias,
+  _request = request
+}: {
+    symbol_alias: string,
+    _request?: typeof request
+  }) {
+  const url_aliassymbol = `https://rest.genenames.org/fetch/alias_symbol/${symbol_alias}`;
+
+  const options_aliassymbol = {
+    method: &apos;GET&apos;,
+    uri: url_aliassymbol as string,
+    json: true
+  };
+
+  const json_aliassymbol: any = _request(options_aliassymbol)
+    .then((response: any) =&gt; {
+      return consolidateResult(response);
+    })
+    .catch((err: any) =&gt; {
+      //console.log(&apos;_request error: &apos; + err);
+      throw new Error(&apos;_request error: &apos; + err);
+    });
+
+  return json_aliassymbol;
+}
+
+/**
+ * @desc This helper method reduces the HUGO response to the needed format and is therefore called by all request functions.
+ *
+ * @param {JSON} - Response from HUGO
+ * @returns {String[]} A consolidated json of synonyms
+ */
+function consolidateResult({
+  response
+}:{
+    response: any
+  }) {
+    if ( !R.isNil(response.docs) ) {
+      const filterUndefined = R.pipe(R.prop(&apos;alias_symbol&apos;), R.isNil, R.not);
+      const definedAlias = R.filter(filterUndefined, response.docs);
+      return R.pipe(R.map(R.pick([&apos;symbol&apos;, &apos;alias_symbol&apos;])), R.map(R.values), R.map(R.flatten))(definedAlias);
+
+     /*
+      * TO-DO:  A potential problem maybe that one alias_symbol can belong to multiple symbols.
+      *         So it maybe useful to remove those alias_symbols, which belong to multiple symbols.
+      *         Example: A --&gt; B,C,D
+      *                  E --&gt; B,F,G
+      *                  Remove B, because it is a synonyms for A and E(?)
+      */
+
+    } else {
+      return [];
+    }
+  }
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.0.4)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
