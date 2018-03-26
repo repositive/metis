@@ -4,7 +4,7 @@ import { inject } from '@repositive/iris';
 import * as config from 'config';
 
 import { get } from './Annotation/controllerAnnotate';
-import { getSynonyms, populateSynonyms, getAllSynonyms } from './Synonyms/controllerSynonyms';
+import { getSynonyms, populateSynonyms, getAllSynonyms, toFileSynonyms } from './Synonyms/controllerSynonyms';
 
 
 import { Pool } from 'pg';
@@ -71,6 +71,12 @@ export default async function init({
   const _allSynonymsHandler = inject({ args: { _postgres: postgres }, func: getAllSynonyms });
   iris.register({
     pattern: 'action.synonyms.all',
+    handler: _allSynonymsHandler
+  });
+
+  const _toFileSynonymsHandler = inject({ args: { _postgres: postgres }, func: toFileSynonyms });
+  iris.register({
+    pattern: 'action.synonyms.toFile',
     handler: _allSynonymsHandler
   });
 }

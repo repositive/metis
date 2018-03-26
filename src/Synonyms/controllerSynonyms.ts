@@ -303,3 +303,19 @@ function deleteAllSynonymsFromDb({
     throw new Error('_request error: ' + err);
   });
 }
+
+/**
+ * @desc Writes all synonyms into a file, which can be shared across containers.
+ * @param {Object} _postgres - Pass postgres element to access the database.
+ */
+export async function toFileSynonyms({
+  _postgres
+}: {
+    _postgres: Pool
+  }) {
+  // TO-DO: vvvv Implement functionality to write content of database to file vvvv
+  const db_content = selectAllSynonymsFromDb({ _postgres });
+  console.log(db_content);
+  // TO-DO: ^^^^ Implement functionality to write content of database to file ^^^^
+  return;
+}
