@@ -1,39 +1,29 @@
-apiVersion: apps/v1beta1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: metis
-  labels:
-    app: metis
-    env: production
-    criticality: med
+  namespace: discover
 spec:
   replicas: 2
   template:
     metadata:
       labels:
         app: metis
-        env: production
-        criticality: med
     spec:
       containers:
-        - name: metis
-          image: registry.repositive.io:5000/metis:${TAG}
-          env:
-            - name: DB_URI
-              valueFrom:
-                secretKeyRef:
-                  name: metis-production
-                  key: db-uri
-            - name: RABBIT_URI
-              valueFrom:
-                secretKeyRef:
-                  name: rabbit-urls-production
-                  key: rabbit
-            - name: ELASTIC_URI
-              value: "http://elastic:9200"
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 0.01
+      - env:
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              key: rabbit
+              name: rabbit-urls-production
+        - name: ELASTIC_URI
+          value: http://elastic:9200
+        image: registry.repositive.io:5000/metis:${TAG}
+        name: metis
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
       imagePullSecrets:
-        - name: regsecret
+      - name: regsecret
