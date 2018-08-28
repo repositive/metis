@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:8.11.3
 
 MAINTAINER reposibot@repositive.io
 
